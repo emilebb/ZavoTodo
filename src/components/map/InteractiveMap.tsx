@@ -39,7 +39,7 @@ const InteractiveMap = () => {
   const [selectedPack, setSelectedPack] = useState<Pack | null>(null)
   const [showRoute, setShowRoute] = useState(false)
   const [routeInfo, setRouteInfo] = useState<RouteInfo | null>(null)
-  const [mapCenter, setMapCenter] = useState({ lat: 4.6097, lng: -74.0817 }) // Bogotá
+  const [mapCenter] = useState({ lat: 4.6097, lng: -74.0817 }) // Bogotá
   const [zoom, setZoom] = useState(12)
   const mapRef = useRef<HTMLDivElement>(null)
 

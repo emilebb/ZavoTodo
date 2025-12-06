@@ -10,7 +10,6 @@ import {
   Star,
   ExternalLink,
   Locate,
-  Zap,
   X,
   Sparkles
 } from 'lucide-react'
@@ -26,7 +25,7 @@ const PremiumMap = () => {
   const [selectedMarker, setSelectedMarker] = useState<string | null>(null)
   const { latitude, longitude, getCurrentLocation, loading: locationLoading } = useCurrentLocation()
   const { searchText, setSearchText } = useFilterStore()
-  const { data: packs } = usePacksQuery({ activo: true })
+  usePacksQuery({ activo: true })
 
   // Marcadores premium con datos completos
   const premiumMarkers = [

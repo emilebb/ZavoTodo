@@ -39,7 +39,7 @@ const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
 
 export const apiService = {
   // ===== AUTENTICACIÓN =====
-  async login(email: string, password: string): Promise<User> {
+  async login(email: string, _password: string): Promise<User> {
     // Simulación de login - en producción esto sería más seguro
     const users = await apiRequest('/users')
     const user = users.find((u: User) => u.email === email)
@@ -53,7 +53,7 @@ export const apiService = {
     return user
   },
 
-  async register(email: string, password: string, nombre: string, rol: 'usuario' | 'negocio'): Promise<User> {
+  async register(email: string, _password: string, nombre: string, rol: 'usuario' | 'negocio'): Promise<User> {
     // Verificar si el usuario ya existe
     const users = await apiRequest('/users')
     const existingUser = users.find((u: User) => u.email === email)

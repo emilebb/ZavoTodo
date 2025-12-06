@@ -24,7 +24,7 @@ const ProfessionalMap = () => {
   const [selectedMarker, setSelectedMarker] = useState<string | null>(null)
   const { latitude, longitude, getCurrentLocation, loading: locationLoading } = useCurrentLocation()
   const { searchText, setSearchText } = useFilterStore()
-  const { data: packs } = usePacksQuery({ activo: true })
+  usePacksQuery({ activo: true })
 
   // Marcadores de demo en el mapa
   const demoMarkers = [
