@@ -1,0 +1,100 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "email": "usuario@demo.com",
+      "nombre": "Usuario Demo",
+      "rol": "usuario",
+      "created_at": "2024-12-05T20:40:00.000Z"
+    },
+    {
+      "id": "2",
+      "email": "negocio@demo.com",
+      "nombre": "Panadería El Buen Pan",
+      "rol": "negocio",
+      "created_at": "2024-12-05T20:40:00.000Z"
+    },
+    {
+      "id": "e732",
+      "email": "estudio.123455@gmail.com",
+      "nombre": "emile ",
+      "rol": "usuario",
+      "created_at": "2025-12-05T20:44:20.948Z"
+    }
+  ],
+  "businesses": [
+    {
+      "id": "1",
+      "user_id": "2",
+      "nombre": "Panadería El Buen Pan",
+      "direccion": "Calle 85 #15-20, Bogotá",
+      "lat": 4.6682,
+      "lng": -74.0816,
+      "horario": "6:00 AM - 8:00 PM",
+      "imagen": null,
+      "created_at": "2024-12-05T20:40:00.000Z"
+    }
+  ],
+  "packs": [
+    {
+      "id": "1",
+      "business_id": "1",
+      "titulo": "Pack Sorpresa de Panadería",
+      "descripcion": "Deliciosos panes, pasteles y productos de panadería del día anterior. Perfectos para el desayuno o merienda.",
+      "precio_original": 15000,
+      "precio_descuento": 8000,
+      "porcentaje_descuento": 47,
+      "stock": 4,
+      "hora_retiro_desde": "17:00",
+      "hora_retiro_hasta": "20:00",
+      "activo": true,
+      "created_at": "2024-12-05T20:40:00.000Z"
+    },
+    {
+      "id": "2",
+      "business_id": "1",
+      "titulo": "Pack de Postres Especiales",
+      "descripcion": "Tortas, cupcakes y postres artesanales con pequeños defectos estéticos pero delicioso sabor.",
+      "precio_original": 25000,
+      "precio_descuento": 12000,
+      "porcentaje_descuento": 52,
+      "stock": 3,
+      "hora_retiro_desde": "18:00",
+      "hora_retiro_hasta": "21:00",
+      "activo": true,
+      "created_at": "2024-12-05T20:40:00.000Z"
+    },
+    {
+      "id": "3",
+      "business_id": "1",
+      "titulo": "Pack de Desayuno Completo",
+      "descripcion": "Pan fresco, croissants, jugos naturales y café. Todo lo necesario para un desayuno perfecto.",
+      "precio_original": 20000,
+      "precio_descuento": 10000,
+      "porcentaje_descuento": 50,
+      "stock": 8,
+      "hora_retiro_desde": "07:00",
+      "hora_retiro_hasta": "10:00",
+      "activo": true,
+      "created_at": "2024-12-05T20:40:00.000Z"
+    }
+  ],
+  "orders": [
+    {
+      "id": "1",
+      "user_id": "1",
+      "pack_id": "1",
+      "estado": "confirmado",
+      "qr_code": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
+      "created_at": "2024-12-05T19:30:00.000Z"
+    },
+    {
+      "id": "9665",
+      "user_id": "e732",
+      "pack_id": "1",
+      "estado": "pendiente",
+      "qr_code": "data:image/png;base64,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",
+      "created_at": "2025-12-05T20:44:36.844Z"
+    }
+  ]
+}

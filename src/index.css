@@ -1,0 +1,557 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply scroll-smooth;
+  }
+  
+  body {
+    @apply bg-gradient-to-br from-green-50 via-teal-50 to-green-50 font-sans antialiased;
+  }
+  
+  html {
+    @apply scroll-smooth;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white/70 backdrop-blur-sm border border-white/20 shadow-lg rounded-xl;
+  }
+  
+  .glass-navbar {
+    @apply bg-white/80 backdrop-blur-md border-b border-white/20 shadow-lg;
+  }
+  
+  .btn-primary {
+    @apply bg-gradient-to-r from-primary-600 to-teal-600 hover:from-primary-700 hover:to-teal-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg;
+  }
+  
+  .btn-secondary {
+    @apply bg-white/80 hover:bg-white text-gray-700 font-medium py-2 px-4 rounded-lg border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md;
+  }
+  
+  .input-field {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white/80 backdrop-blur-sm transition-all duration-200;
+  }
+  
+  .nav-link {
+    @apply flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200;
+  }
+  
+  .nav-link-active {
+    @apply bg-primary-100 text-primary-700 shadow-sm;
+  }
+  
+  .nav-link-inactive {
+    @apply text-gray-600 hover:text-primary-600 hover:bg-primary-50;
+  }
+  
+  .line-clamp-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Soft Neumorphism Styles */
+  .neomorphism-soft {
+    background: linear-gradient(145deg, #ffffff, #f0f0f0);
+    box-shadow: 
+      20px 20px 60px #d1d1d1,
+      -20px -20px 60px #ffffff;
+  }
+
+  .neomorphism-inset {
+    background: linear-gradient(145deg, #f0f0f0, #ffffff);
+    box-shadow: 
+      inset 20px 20px 60px #d1d1d1,
+      inset -20px -20px 60px #ffffff;
+  }
+
+  .glass-elevated {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 
+      0 8px 32px rgba(31, 38, 135, 0.15),
+      0 4px 16px rgba(31, 38, 135, 0.1);
+  }
+
+  .marker-glow {
+    filter: drop-shadow(0 0 20px rgba(34, 197, 94, 0.4));
+  }
+
+  .soft-shadow {
+    box-shadow: 
+      0 10px 25px rgba(0, 0, 0, 0.05),
+      0 4px 10px rgba(0, 0, 0, 0.03);
+  }
+
+  .gradient-border {
+    background: linear-gradient(white, white) padding-box,
+                linear-gradient(145deg, #22c55e, #14b8a6) border-box;
+    border: 2px solid transparent;
+  }
+
+  /* Professional Location Card */
+  .location-card-container {
+    @apply flex justify-center;
+  }
+
+  .location-card {
+    @apply flex items-center space-x-4 px-5 py-4 bg-white/95 backdrop-blur-xl rounded-3xl border border-white/30;
+    box-shadow: 
+      0 20px 40px rgba(0, 0, 0, 0.08),
+      0 8px 16px rgba(0, 0, 0, 0.04),
+      0 2px 4px rgba(0, 0, 0, 0.02);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    min-width: 280px;
+    max-width: 320px;
+  }
+
+  .location-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+      0 25px 50px rgba(0, 0, 0, 0.12),
+      0 12px 24px rgba(0, 0, 0, 0.06),
+      0 4px 8px rgba(0, 0, 0, 0.03);
+  }
+
+  .location-icon-container {
+    @apply flex-shrink-0;
+  }
+
+  .location-icon-background {
+    @apply w-12 h-12 rounded-2xl flex items-center justify-center;
+    background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 50%, #14b8a6 100%);
+    box-shadow: 
+      0 8px 16px rgba(59, 130, 246, 0.25),
+      0 4px 8px rgba(6, 182, 212, 0.15);
+  }
+
+  .location-icon {
+    @apply w-6 h-6 text-white;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+  }
+
+  .location-content {
+    @apply flex-1 min-w-0;
+  }
+
+  .location-title {
+    @apply text-gray-900 font-semibold text-base leading-tight;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', system-ui, sans-serif;
+    letter-spacing: -0.01em;
+  }
+
+  .location-coordinates {
+    @apply text-gray-500 text-sm font-normal leading-tight mt-0.5;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.01em;
+  }
+
+  .location-activate-btn {
+    @apply flex-shrink-0 w-10 h-10 bg-gray-100/80 hover:bg-gray-200/80 rounded-xl flex items-center justify-center text-gray-600 hover:text-gray-800;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 
+      0 2px 4px rgba(0, 0, 0, 0.04),
+      0 1px 2px rgba(0, 0, 0, 0.02);
+  }
+
+  .location-activate-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 
+      0 4px 8px rgba(0, 0, 0, 0.08),
+      0 2px 4px rgba(0, 0, 0, 0.04);
+  }
+
+  .location-loading {
+    @apply flex-shrink-0 w-10 h-10 flex items-center justify-center;
+  }
+
+  .loading-spinner {
+    @apply w-5 h-5 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 640px) {
+    .location-card {
+      @apply px-4 py-3 space-x-3 min-w-0 max-w-none mx-4;
+    }
+    
+    .location-icon-background {
+      @apply w-10 h-10;
+    }
+    
+    .location-icon {
+      @apply w-5 h-5;
+    }
+    
+    .location-title {
+      @apply text-sm;
+    }
+    
+    .location-coordinates {
+      @apply text-xs;
+    }
+  }
+
+  /* Optimized Map Layout */
+  .optimized-map-container {
+    @apply h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-green-50 relative overflow-hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Display', system-ui, sans-serif;
+  }
+
+  /* Header Styles */
+  .optimized-header {
+    @apply absolute top-0 left-0 right-0 z-30;
+    padding: 16px;
+  }
+
+  .header-content {
+    @apply flex items-center space-x-4 bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-4;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .back-button {
+    @apply flex-shrink-0 w-10 h-10 bg-gray-100/80 hover:bg-gray-200/80 rounded-xl flex items-center justify-center;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .back-button:hover {
+    transform: scale(1.05);
+  }
+
+  .search-container {
+    @apply flex-1;
+  }
+
+  .search-input-wrapper {
+    @apply relative;
+  }
+
+  .search-icon {
+    @apply absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 z-10;
+  }
+
+  .search-input {
+    @apply h-12 pl-12 pr-4 text-base bg-gray-50/80 border-gray-200/50 rounded-xl shadow-sm focus:shadow-md w-full;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .action-buttons {
+    @apply flex items-center space-x-3;
+  }
+
+  .filter-button {
+    @apply h-12 px-6 bg-white/80 border-gray-200/50 rounded-xl shadow-sm hover:shadow-md;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .location-button {
+    @apply h-10 w-10 p-0 bg-blue-100/80 hover:bg-blue-200/80 rounded-xl;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Main Content */
+  .main-content {
+    @apply absolute inset-0 pt-24 pb-32 px-4 flex;
+  }
+
+  /* Map Styles */
+  .map-container {
+    @apply flex-1 mr-4;
+  }
+
+  .map-canvas {
+    @apply w-full h-full rounded-3xl overflow-hidden relative shadow-2xl border border-white/30;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
+  }
+
+  .map-grid {
+    @apply absolute inset-0 opacity-[0.02];
+    background-image: 
+      linear-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  /* Marker Styles */
+  .map-marker {
+    @apply absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer z-10;
+  }
+
+  .marker-base {
+    @apply relative;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .marker-base:hover {
+    transform: scale(1.1);
+  }
+
+  .marker-selected {
+    transform: scale(1.15);
+  }
+
+  .marker-icon-container {
+    @apply w-12 h-12 bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-lg border-2 border-green-400/60 flex items-center justify-center backdrop-blur-sm;
+  }
+
+  .marker-icon {
+    @apply text-lg;
+  }
+
+  .discount-badge {
+    @apply absolute -top-2 -right-2 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold px-2 py-1 rounded-lg shadow-lg;
+  }
+
+  .marker-glow {
+    @apply absolute inset-0 w-12 h-12 bg-green-400/20 rounded-2xl blur-xl;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .marker-base:hover .marker-glow {
+    @apply bg-green-400/30;
+  }
+
+  .marker-tooltip {
+    @apply absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 pointer-events-none;
+    transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .marker-base:hover .marker-tooltip {
+    opacity: 1;
+  }
+
+  .tooltip-content {
+    @apply bg-gray-900/90 backdrop-blur-sm text-white text-xs font-medium px-3 py-2 rounded-xl whitespace-nowrap shadow-xl;
+  }
+
+  /* User Location */
+  .user-location-marker {
+    @apply absolute transform -translate-x-1/2 -translate-y-1/2;
+  }
+
+  .user-location-dot {
+    @apply w-4 h-4 bg-blue-500 rounded-full border-2 border-white shadow-lg animate-pulse;
+  }
+
+  .user-location-pulse {
+    @apply absolute inset-0 w-4 h-4 bg-blue-500/30 rounded-full animate-ping;
+  }
+
+  /* Features Panel */
+  .features-panel {
+    @apply w-80 flex-shrink-0;
+  }
+
+  .panel-content {
+    @apply h-full bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 p-6 flex flex-col;
+  }
+
+  .panel-header {
+    @apply flex items-center space-x-3 mb-6;
+  }
+
+  .panel-icon {
+    @apply w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl flex items-center justify-center;
+  }
+
+  .panel-title {
+    @apply text-lg font-bold text-gray-900;
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Display', system-ui, sans-serif;
+  }
+
+  .features-list {
+    @apply space-y-3 flex-1;
+  }
+
+  .feature-item {
+    @apply flex items-center space-x-4 p-3 rounded-xl hover:bg-gray-50/50;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .feature-icon {
+    @apply w-10 h-10 rounded-xl shadow-sm flex items-center justify-center;
+  }
+
+  .feature-text {
+    @apply text-gray-700 font-medium text-sm leading-relaxed;
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Text', system-ui, sans-serif;
+  }
+
+  .panel-footer {
+    @apply mt-6 pt-4 border-t border-gray-200/50;
+  }
+
+  .tip-container {
+    @apply bg-gradient-to-r from-blue-50 to-green-50 rounded-xl p-4;
+  }
+
+  .tip-icon {
+    @apply text-lg float-left mr-2;
+  }
+
+  .tip-text {
+    @apply text-xs text-gray-600 leading-relaxed;
+  }
+
+  /* Bottom Section */
+  .bottom-section {
+    @apply absolute bottom-0 left-0 right-0 z-20 p-4;
+  }
+
+  .location-card-wrapper {
+    @apply mb-4;
+  }
+
+  /* Marker Info Card */
+  .marker-info-card {
+    @apply max-w-2xl mx-auto;
+  }
+
+  .marker-info-content {
+    @apply bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/30 p-6;
+  }
+
+  .marker-info-header {
+    @apply flex items-start justify-between mb-4;
+  }
+
+  .marker-info-main {
+    @apply flex-1;
+  }
+
+  .marker-name {
+    @apply font-bold text-gray-900 text-lg mb-2;
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Display', system-ui, sans-serif;
+  }
+
+  .marker-meta {
+    @apply flex items-center space-x-2 mb-3;
+  }
+
+  .rating {
+    @apply flex items-center space-x-1;
+  }
+
+  .separator {
+    @apply text-gray-400;
+  }
+
+  .distance {
+    @apply text-sm text-gray-600;
+  }
+
+  .marker-description {
+    @apply text-sm text-gray-600 mb-4 leading-relaxed;
+  }
+
+  .close-button {
+    @apply h-8 w-8 p-0 bg-gray-100/80 hover:bg-gray-200/80 rounded-lg;
+  }
+
+  .price-section {
+    @apply mb-4;
+  }
+
+  .price-info {
+    @apply flex items-center space-x-3;
+  }
+
+  .current-price {
+    @apply text-2xl font-bold text-green-600;
+  }
+
+  .original-price {
+    @apply text-sm text-gray-500 line-through;
+  }
+
+  .discount-badge-info {
+    @apply bg-red-100 text-red-700 text-xs font-bold px-2 py-1 rounded-lg;
+  }
+
+  .marker-actions {
+    @apply flex space-x-3;
+  }
+
+  .primary-action {
+    @apply flex-1 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white;
+  }
+
+  .secondary-action {
+    @apply flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 1024px) {
+    .main-content {
+      @apply flex-col;
+    }
+    
+    .map-container {
+      @apply mr-0 mb-4 flex-1;
+    }
+    
+    .features-panel {
+      @apply w-full h-auto;
+    }
+    
+    .panel-content {
+      @apply h-auto;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .optimized-header {
+      padding: 12px;
+    }
+    
+    .header-content {
+      @apply p-3 space-x-3;
+    }
+    
+    .search-input {
+      @apply h-10 text-sm;
+    }
+    
+    .filter-button {
+      @apply h-10 px-4;
+    }
+    
+    .main-content {
+      @apply pt-20 pb-28 px-3;
+    }
+    
+    .features-panel {
+      @apply hidden;
+    }
+    
+    .marker-info-content {
+      @apply p-4;
+    }
+    
+    .marker-actions {
+      @apply flex-col space-x-0 space-y-2;
+    }
+  }
+}
