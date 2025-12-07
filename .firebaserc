@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "zavowebmobil"
+  },
+  "targets": {
+    "zavowebmobil": {
+      "hosting": {
+        "zavo-web": [
+          "zavowebmobil"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

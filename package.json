@@ -12,7 +12,9 @@
     "dev:full": "concurrently \"npm run server\" \"npm run dev\"",
     "deploy": "npm run build && firebase deploy",
     "deploy:hosting": "npm run build && firebase deploy --only hosting",
-    "firebase:emulators": "firebase emulators:start"
+    "deploy:auto": "git add . && git commit -m 'deploy: Auto-deploy trigger' && git push origin main",
+    "firebase:emulators": "firebase emulators:start",
+    "setup:auto-deploy": "bash setup-auto-deploy.sh"
   },
   "dependencies": {
     "@react-google-maps/api": "^2.20.7",
