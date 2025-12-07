@@ -2,24 +2,39 @@ import { HTMLAttributes, forwardRef } from 'react'
 import { clsx } from 'clsx'
 
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
-  variant?: 'default' | 'glass' | 'elevated'
+  variant?: 'default' | 'glass' | 'elevated' | 'interactive'
   padding?: 'none' | 'sm' | 'md' | 'lg'
+  hover?: boolean
 }
 
+/**
+ * Card Component - ZAVO Design System
+ * 
+ * Variants:
+ * - default: Fondo blanco con borde sutil
+ * - glass: Efecto glassmorphism
+ * - elevated: Sombra más pronunciada
+ * - interactive: Con hover effects para cards clickeables
+ */
 const Card = forwardRef<HTMLDivElement, CardProps>(
-  ({ className, variant = 'default', padding = 'md', children, ...props }, ref) => {
-    const baseClasses = 'rounded-lg'
+  ({ className, variant = 'default', padding = 'md', hover = false, children, ...props }, ref) => {
+    const baseClasses = 'rounded-2xl transition-all duration-200'
     
     const variantClasses = {
-      default: 'bg-white border border-gray-200 shadow-sm',
-      glass: 'glass-card',
-      elevated: 'bg-white shadow-lg border border-gray-100',
+      default: 'bg-white border border-gray-100 shadow-soft',
+      glass: 'bg-white/70 backdrop-blur-sm border border-white/20 shadow-lg',
+      elevated: 'bg-white shadow-card border border-gray-50',
+      interactive: 'bg-white border border-gray-100 shadow-soft cursor-pointer',
     }
+    
+    const hoverClasses = hover || variant === 'interactive' 
+      ? 'hover:shadow-card-hover hover:-translate-y-0.5 active:translate-y-0' 
+      : ''
     
     const paddingClasses = {
       none: '',
-      sm: 'p-3',
-      md: 'p-4',
+      sm: 'p-4',
+      md: 'p-5',
       lg: 'p-6',
     }
 
@@ -30,6 +45,7 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
           baseClasses,
           variantClasses[variant],
           paddingClasses[padding],
+          hoverClasses,
           className
         )}
         {...props}

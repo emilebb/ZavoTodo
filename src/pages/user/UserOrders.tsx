@@ -146,21 +146,34 @@ const UserOrders = () => {
 
       {/* Orders */}
       {!orders || orders.length === 0 ? (
-        <div className="text-center py-12">
-          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Package className="w-8 h-8 text-gray-400" />
+        <div className="text-center py-16 px-4">
+          {/* Empty State Illustration */}
+          <div className="relative w-32 h-32 mx-auto mb-6">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary-100 to-teal-100 rounded-full animate-pulse" />
+            <div className="absolute inset-4 bg-white rounded-full flex items-center justify-center shadow-soft">
+              <Package className="w-12 h-12 text-primary-400" />
+            </div>
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
-            No tienes pedidos aún
+          
+          <h3 className="text-xl font-semibold font-display text-content mb-3">
+            Aún no has rescatado comida
           </h3>
-          <p className="text-gray-500 mb-4">
-            ¡Comienza a rescatar packs sorpresa y ayuda al planeta!
+          <p className="text-content-muted mb-8 max-w-sm mx-auto">
+            Empieza explorando packs cerca de ti y únete a la revolución contra el desperdicio alimentario.
           </p>
-          <Link to="/">
-            <Button>
-              Explorar Packs
-            </Button>
-          </Link>
+          
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Link to="/">
+              <Button size="lg">
+                Explorar Packs
+              </Button>
+            </Link>
+            <Link to="/mapa">
+              <Button variant="outline" size="lg">
+                Ver Mapa
+              </Button>
+            </Link>
+          </div>
         </div>
       ) : (
         <div>

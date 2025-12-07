@@ -16,6 +16,10 @@ import {
 import { useAuthStore } from '../../store/authStore'
 import Button from '../ui/Button'
 
+/**
+ * MainNavbar - ZAVO Design System
+ * Navbar sticky premium con indicador de ruta activa
+ */
 const MainNavbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const { user, logout } = useAuthStore()
@@ -45,44 +49,50 @@ const MainNavbar = () => {
 
   return (
     <>
-      {/* Fixed Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 glass-navbar">
+      {/* Fixed Navbar - Premium Glass Effect */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-200/50 shadow-navbar">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             
             {/* Logo */}
-            <Link to="/" className="flex items-center space-x-3 group">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-teal-500 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
+            <Link to="/" className="flex items-center gap-3 group" aria-label="ZAVO - Ir al inicio">
+              <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-teal-500 rounded-xl flex items-center justify-center shadow-primary group-hover:shadow-primary-lg group-hover:scale-105 transition-all duration-200">
                 <Leaf className="w-6 h-6 text-white" />
               </div>
               <div className="hidden sm:block">
-                <h1 className="text-xl font-bold bg-gradient-to-r from-primary-600 to-teal-600 bg-clip-text text-transparent">
+                <span className="text-xl font-bold font-display bg-gradient-to-r from-primary-600 to-teal-600 bg-clip-text text-transparent">
                   ZAVO
-                </h1>
-                <p className="text-xs text-gray-500 -mt-1">Rescata comida</p>
+                </span>
+                <p className="text-xs text-content-muted -mt-0.5">Rescata comida</p>
               </div>
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-1">
+            <nav className="hidden md:flex items-center gap-1" aria-label="Navegación principal">
               {menuItems.map((item) => {
                 const Icon = item.icon
+                const active = isActive(item.path)
                 return (
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                      isActive(item.path)
-                        ? 'bg-primary-100 text-primary-700 shadow-sm'
-                        : 'text-gray-600 hover:text-primary-600 hover:bg-primary-50'
+                    className={`relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                      active
+                        ? 'text-primary-700 bg-primary-50'
+                        : 'text-content-secondary hover:text-primary-600 hover:bg-gray-50'
                     }`}
+                    aria-current={active ? 'page' : undefined}
                   >
                     <Icon className="w-4 h-4" />
                     <span>{item.label}</span>
+                    {/* Active indicator */}
+                    {active && (
+                      <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary-600 rounded-full" />
+                    )}
                   </Link>
                 )
               })}
-            </div>
+            </nav>
 
             {/* Right Section */}
             <div className="flex items-center space-x-3">

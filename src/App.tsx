@@ -1,21 +1,58 @@
-import { useEffect } from 'react'
+import { useEffect, Suspense, lazy } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthStore } from './store/authStore'
 
-// Layouts
+// Layouts - Cargados inmediatamente (críticos para el shell)
 import AuthLayout from './components/layouts/AuthLayout'
 import MainLayout from './components/layouts/MainLayout'
 
-// Auth Pages
-import RoleSelection from './pages/auth/RoleSelection'
-
-// Demo Pages
-import DemoPage from './pages/DemoPage'
-import MapDemo from './pages/MapDemo'
-import Home from './pages/user/Home'
-
 // Components
 import LoadingSpinner from './components/ui/LoadingSpinner'
+
+// ============================================
+// LAZY LOADED PAGES - Code Splitting
+// Cada ruta se carga solo cuando el usuario navega a ella
+// ============================================
+
+// Auth Pages
+const RoleSelection = lazy(() => import('./pages/auth/RoleSelection'))
+
+// Main Pages - Lazy loaded para mejor performance inicial
+const DemoPage = lazy(() => import('./pages/DemoPage'))
+const MapDemo = lazy(() => import('./pages/MapDemo'))
+const Home = lazy(() => import('./pages/user/Home'))
+
+// User Pages
+const UserOrders = lazy(() => import('./pages/user/UserOrders'))
+const PackDetail = lazy(() => import('./pages/user/PackDetail'))
+const OrderConfirmed = lazy(() => import('./pages/user/OrderConfirmed'))
+const OrderQR = lazy(() => import('./pages/user/OrderQR'))
+
+/**
+ * Loading Fallback Component
+ * Se muestra mientras se carga una ruta lazy
+ */
+const PageLoader = () => (
+  <div className="min-h-[60vh] flex items-center justify-center">
+    <div className="text-center">
+      <LoadingSpinner size="lg" />
+      <p className="mt-4 text-content-muted text-sm">Cargando...</p>
+    </div>
+  </div>
+)
+
+/**
+ * Full Screen Loader
+ * Para la carga inicial de la app
+ */
+const AppLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-teal-50 to-primary-50">
+    <div className="text-center">
+      <LoadingSpinner size="lg" />
+      <p className="mt-4 text-content-muted">Preparando ZAVO...</p>
+    </div>
+  </div>
+)
 
 function App() {
   const { checkSession, loading, initialized, user } = useAuthStore()
@@ -25,32 +62,99 @@ function App() {
   }, [checkSession])
 
   if (!initialized || loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-teal-50">
-        <LoadingSpinner size="lg" />
-      </div>
-    )
+    return <AppLoader />
   }
 
   return (
-    <Routes>
-      {/* Auth Routes */}
-      <Route path="/auth" element={<AuthLayout />}>
-        <Route index element={<Navigate to="/auth/role" replace />} />
-        <Route path="role" element={<RoleSelection />} />
-      </Route>
+    <Suspense fallback={<AppLoader />}>
+      <Routes>
+        {/* Auth Routes */}
+        <Route path="/auth" element={<AuthLayout />}>
+          <Route index element={<Navigate to="/auth/role" replace />} />
+          <Route 
+            path="role" 
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <RoleSelection />
+              </Suspense>
+            } 
+          />
+        </Route>
 
-      {/* Main App Routes with Fixed Navbar */}
-      <Route path="/*" element={<MainLayout />}>
-        <Route index element={user ? <Home /> : <DemoPage />} />
-        <Route path="demo" element={<DemoPage />} />
-        <Route path="mapa" element={<MapDemo />} />
-        <Route path="home" element={<Home />} />
-      </Route>
+        {/* Main App Routes with Fixed Navbar */}
+        <Route path="/*" element={<MainLayout />}>
+          <Route 
+            index 
+            element={
+              <Suspense fallback={<PageLoader />}>
+                {user ? <Home /> : <DemoPage />}
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="demo" 
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <DemoPage />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="mapa" 
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <MapDemo />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="home" 
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <Home />
+              </Suspense>
+            } 
+          />
+          
+          {/* User Routes */}
+          <Route 
+            path="perfil/pedidos" 
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <UserOrders />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="pack/:id" 
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <PackDetail />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="pedido/:id/confirmado" 
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <OrderConfirmed />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="pedido/:id/qr" 
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <OrderQR />
+              </Suspense>
+            } 
+          />
+        </Route>
 
-      {/* Redirect */}
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        {/* Redirect */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Suspense>
   )
 }
 

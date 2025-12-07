@@ -39,6 +39,8 @@ const PackDetail = () => {
       const newOrder = await createOrderMutation.mutateAsync({
         user_id: user.id,
         pack_id: pack.id,
+        cantidad: 1,
+        precio_total: pack.precio_descuento,
         estado: 'pendiente',
         qr_code: qrCode,
       })
