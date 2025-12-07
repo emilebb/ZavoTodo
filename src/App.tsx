@@ -16,6 +16,8 @@ import LoadingSpinner from './components/ui/LoadingSpinner'
 
 // Auth Pages
 const RoleSelection = lazy(() => import('./pages/auth/RoleSelection'))
+const ModernLogin = lazy(() => import('./pages/auth/ModernLogin'))
+const ModernRegister = lazy(() => import('./pages/auth/ModernRegister'))
 
 // Main Pages - Lazy loaded para mejor performance inicial
 const DemoPage = lazy(() => import('./pages/DemoPage'))
@@ -69,7 +71,25 @@ function App() {
   return (
     <Suspense fallback={<AppLoader />}>
       <Routes>
-        {/* Auth Routes */}
+        {/* Modern Auth Routes - Full Screen */}
+        <Route 
+          path="/login" 
+          element={
+            <Suspense fallback={<AppLoader />}>
+              <ModernLogin />
+            </Suspense>
+          } 
+        />
+        <Route 
+          path="/register" 
+          element={
+            <Suspense fallback={<AppLoader />}>
+              <ModernRegister />
+            </Suspense>
+          } 
+        />
+
+        {/* Legacy Auth Routes */}
         <Route path="/auth" element={<AuthLayout />}>
           <Route index element={<Navigate to="/auth/role" replace />} />
           <Route 

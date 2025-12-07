@@ -28,7 +28,7 @@ const MainNavbar = () => {
 
   const handleLogout = async () => {
     await logout()
-    navigate('/auth/role')
+    navigate('/login')
   }
 
   const isActive = (path: string) => location.pathname === path

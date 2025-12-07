@@ -56,8 +56,8 @@ const MainLayout = ({ children }: MainLayoutProps) => {
               <ul className="space-y-2 text-sm">
                 <li><a href="/" className="text-gray-600 hover:text-primary-600 transition-colors">Inicio</a></li>
                 <li><a href="/mapa" className="text-gray-600 hover:text-primary-600 transition-colors">Mapa</a></li>
-                <li><a href="/auth/register" className="text-gray-600 hover:text-primary-600 transition-colors">Registrarse</a></li>
-                <li><a href="/auth/login" className="text-gray-600 hover:text-primary-600 transition-colors">Iniciar Sesión</a></li>
+                <li><a href="/register" className="text-gray-600 hover:text-primary-600 transition-colors">Registrarse</a></li>
+                <li><a href="/login" className="text-gray-600 hover:text-primary-600 transition-colors">Iniciar Sesión</a></li>
               </ul>
             </div>
 
