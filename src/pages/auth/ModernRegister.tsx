@@ -6,8 +6,8 @@
  * Diseño moderno para registro de usuarios
  */
 
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
 import ZavoLogo from '../../components/ui/ZavoLogo'
 import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Check } from 'lucide-react'
@@ -26,6 +26,18 @@ const ModernRegister = () => {
   
   const { register, loading } = useAuthStore()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const roleFromUrl = searchParams.get('role') as 'usuario' | 'negocio' | null
+
+  // Determinar el rol a usar
+  const userRole = roleFromUrl || 'usuario'
+
+  useEffect(() => {
+    // Si hay un rol en la URL, podemos mostrar un mensaje personalizado
+    if (roleFromUrl) {
+      console.log(`Registrando como: ${roleFromUrl}`)
+    }
+  }, [roleFromUrl])
 
   const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -65,10 +77,10 @@ const ModernRegister = () => {
     }
 
     try {
-      await register(formData.email, formData.password, formData.name, 'usuario')
-      navigate('/')
-    } catch (error) {
-      // Error is handled by the store
+      await register(formData.email, formData.password, formData.name, userRole)
+      navigate('/home')
+    } catch (error: any) {
+      setErrors({ general: error.message })
     }
   }
 
@@ -98,6 +110,13 @@ const ModernRegister = () => {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Sign Up</h1>
             <p className="text-gray-500">Create your account to start saving food and money.</p>
           </div>
+
+          {/* Error general */}
+          {errors.general && (
+            <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+              <p className="text-sm text-red-600">{errors.general}</p>
+            </div>
+          )}
 
           {/* Formulario */}
           <form onSubmit={handleSubmit} className="space-y-5">

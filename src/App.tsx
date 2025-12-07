@@ -1,6 +1,5 @@
-import { useEffect, Suspense, lazy } from 'react'
+import { Suspense, lazy } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { useAuthStore } from './store/authStore'
 
 // Layouts - Cargados inmediatamente (críticos para el shell)
 import AuthLayout from './components/layouts/AuthLayout'
@@ -8,6 +7,7 @@ import MainLayout from './components/layouts/MainLayout'
 
 // Components
 import LoadingSpinner from './components/ui/LoadingSpinner'
+import AuthGuard from './components/auth/AuthGuard'
 
 // ============================================
 // LAZY LOADED PAGES - Code Splitting
@@ -58,34 +58,32 @@ const AppLoader = () => (
 )
 
 function App() {
-  const { checkSession, loading, initialized, user } = useAuthStore()
-
-  useEffect(() => {
-    checkSession()
-  }, [checkSession])
-
-  if (!initialized || loading) {
-    return <AppLoader />
-  }
-
   return (
     <Suspense fallback={<AppLoader />}>
       <Routes>
-        {/* Modern Auth Routes - Full Screen */}
+        {/* Root redirect */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
+
+        {/* Public Auth Routes */}
         <Route 
           path="/login" 
           element={
-            <Suspense fallback={<AppLoader />}>
-              <ModernLogin />
-            </Suspense>
+            <AuthGuard requireAuth={false}>
+              <Suspense fallback={<AppLoader />}>
+                <ModernLogin />
+              </Suspense>
+            </AuthGuard>
           } 
         />
+        
         <Route 
           path="/register" 
           element={
-            <Suspense fallback={<AppLoader />}>
-              <ModernRegister />
-            </Suspense>
+            <AuthGuard requireAuth={false}>
+              <Suspense fallback={<AppLoader />}>
+                <ModernRegister />
+              </Suspense>
+            </AuthGuard>
           } 
         />
 
@@ -102,16 +100,26 @@ function App() {
           />
         </Route>
 
-        {/* Main App Routes with Fixed Navbar */}
-        <Route path="/*" element={<MainLayout />}>
+        {/* Protected Routes with MainLayout */}
+        <Route 
+          path="/*" 
+          element={
+            <AuthGuard requireAuth={true}>
+              <MainLayout />
+            </AuthGuard>
+          }
+        >
+          {/* Home */}
           <Route 
-            index 
+            path="home" 
             element={
               <Suspense fallback={<PageLoader />}>
-                {user ? <Home /> : <DemoPage />}
+                <Home />
               </Suspense>
             } 
           />
+          
+          {/* Public pages (accessible when authenticated) */}
           <Route 
             path="demo" 
             element={
@@ -120,6 +128,7 @@ function App() {
               </Suspense>
             } 
           />
+          
           <Route 
             path="mapa" 
             element={
@@ -128,19 +137,12 @@ function App() {
               </Suspense>
             } 
           />
+          
           <Route 
             path="google-maps" 
             element={
               <Suspense fallback={<PageLoader />}>
                 <GoogleMapDemo />
-              </Suspense>
-            } 
-          />
-          <Route 
-            path="home" 
-            element={
-              <Suspense fallback={<PageLoader />}>
-                <Home />
               </Suspense>
             } 
           />
@@ -154,6 +156,7 @@ function App() {
               </Suspense>
             } 
           />
+          
           <Route 
             path="pack/:id" 
             element={
@@ -162,14 +165,16 @@ function App() {
               </Suspense>
             } 
           />
+          
           <Route 
-            path="pedido/:id/confirmado" 
+            path="pedido/confirmado" 
             element={
               <Suspense fallback={<PageLoader />}>
                 <OrderConfirmed />
               </Suspense>
             } 
           />
+          
           <Route 
             path="pedido/:id/qr" 
             element={
@@ -179,9 +184,6 @@ function App() {
             } 
           />
         </Route>
-
-        {/* Redirect */}
-        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Suspense>
   )

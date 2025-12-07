@@ -1,77 +1,307 @@
-import { create } from 'zustand'
-import { apiService } from '../services/apiService'
-import { User, AuthState } from '../types'
-import toast from 'react-hot-toast'
+/**
+ * ============================================
+ * ZAVO - Auth Store (Zustand)
+ * ============================================
+ * 
+ * Sistema robusto de autenticación con JWT
+ * - Token management
+ * - Auto-verificación
+ * - Protección de rutas
+ * - Logout completo
+ */
 
-interface AuthStore extends AuthState {
-  login: (email: string, password: string) => Promise<void>
-  register: (email: string, password: string, nombre: string, rol: 'usuario' | 'negocio') => Promise<void>
-  logout: () => Promise<void>
-  checkSession: () => Promise<void>
-  setUser: (user: User | null) => void
-  setLoading: (loading: boolean) => void
+import { create } from 'zustand'
+import { devtools } from 'zustand/middleware'
+import { mockAuthServer } from '../services/mockAuthServer'
+
+// ============================================
+// TIPOS
+// ============================================
+
+interface User {
+  id: string
+  name: string
+  email: string
+  role: 'usuario' | 'negocio'
+  created_at: string
 }
 
-export const useAuthStore = create<AuthStore>((set) => ({
-  user: null,
-  loading: false,
-  initialized: false,
+interface AuthState {
+  // Estado
+  user: User | null
+  token: string | null
+  isAuthenticated: boolean
+  loading: boolean
+  initialized: boolean
+  
+  // Métodos
+  login: (email: string, password: string) => Promise<void>
+  register: (email: string, password: string, name: string, role: 'usuario' | 'negocio') => Promise<void>
+  logout: () => void
+  verifyToken: () => Promise<boolean>
+  checkSession: () => Promise<void>
+  
+  // Helpers internos
+  setToken: (token: string | null) => void
+  setUser: (user: User | null) => void
+  setLoading: (loading: boolean) => void
+  clearAuth: () => void
+}
 
-  setUser: (user) => set({ user }),
-  setLoading: (loading) => set({ loading }),
+// ============================================
+// CONFIGURACIÓN API
+// ============================================
 
-  login: async (email: string, password: string) => {
-    try {
-      set({ loading: true })
-      
-      const user = await apiService.login(email, password)
-      set({ user, loading: false })
-      toast.success('¡Bienvenido a ZAVO!')
-    } catch (error: any) {
-      console.error('Login error:', error)
-      toast.error(error.message || 'Error al iniciar sesión')
-      set({ loading: false })
-      throw error
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
+
+// ============================================
+// TOKEN MANAGEMENT
+// ============================================
+
+const TOKEN_KEY = 'zavo_auth_token'
+
+const getStoredToken = (): string | null => {
+  try {
+    return localStorage.getItem(TOKEN_KEY)
+  } catch {
+    return null
+  }
+}
+
+const setStoredToken = (token: string | null): void => {
+  try {
+    if (token) {
+      localStorage.setItem(TOKEN_KEY, token)
+    } else {
+      localStorage.removeItem(TOKEN_KEY)
     }
-  },
+  } catch (error) {
+    console.error('Error managing token:', error)
+  }
+}
 
-  register: async (email: string, password: string, nombre: string, rol: 'usuario' | 'negocio') => {
-    try {
-      set({ loading: true })
-      
-      const user = await apiService.register(email, password, nombre, rol)
-      set({ user, loading: false })
-      toast.success('¡Cuenta creada exitosamente!')
-    } catch (error: any) {
-      console.error('Register error:', error)
-      toast.error(error.message || 'Error al crear la cuenta')
-      set({ loading: false })
-      throw error
-    }
-  },
+const clearStoredToken = (): void => {
+  try {
+    localStorage.removeItem(TOKEN_KEY)
+  } catch (error) {
+    console.error('Error clearing token:', error)
+  }
+}
 
-  logout: async () => {
-    try {
-      set({ loading: true })
-      await apiService.logout()
-      set({ user: null, loading: false })
-      toast.success('Sesión cerrada')
-    } catch (error: any) {
-      console.error('Logout error:', error)
-      toast.error('Error al cerrar sesión')
-      set({ loading: false })
-    }
-  },
+// ============================================
+// API CALLS
+// ============================================
 
-  checkSession: async () => {
-    try {
-      set({ loading: true })
-      
-      const user = apiService.getCurrentUser()
-      set({ user, loading: false, initialized: true })
-    } catch (error: any) {
-      console.error('Session check error:', error)
-      set({ user: null, loading: false, initialized: true })
+const apiCall = async (endpoint: string, options: RequestInit = {}) => {
+  const token = getStoredToken()
+  
+  const config: RequestInit = {
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token && { Authorization: `Bearer ${token}` }),
+      ...options.headers,
+    },
+    ...options,
+  }
+
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, config)
+  
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}))
+    throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`)
+  }
+  
+  return response.json()
+}
+
+// ============================================
+// ZUSTAND STORE
+// ============================================
+
+export const useAuthStore = create<AuthState>()(
+  devtools(
+    (set, get) => ({
+      // Estado inicial
+      user: null,
+      token: getStoredToken(),
+      isAuthenticated: false,
+      loading: false,
+      initialized: false,
+
+      // ============================================
+      // SETTERS INTERNOS
+      // ============================================
+
+      setToken: (token: string | null) => {
+        setStoredToken(token)
+        set({ 
+          token,
+          isAuthenticated: !!token 
+        })
+      },
+
+      setUser: (user: User | null) => {
+        set({ 
+          user,
+          isAuthenticated: !!user && !!get().token
+        })
+      },
+
+      setLoading: (loading: boolean) => {
+        set({ loading })
+      },
+
+      clearAuth: () => {
+        clearStoredToken()
+        set({
+          user: null,
+          token: null,
+          isAuthenticated: false,
+          loading: false
+        })
+      },
+
+      // ============================================
+      // LOGIN
+      // ============================================
+
+      login: async (email: string, password: string) => {
+        try {
+          set({ loading: true })
+
+          // Usar mock server en desarrollo, API real en producción
+          const response = import.meta.env.DEV 
+            ? await mockAuthServer.login(email, password)
+            : await apiCall('/auth/login', {
+                method: 'POST',
+                body: JSON.stringify({ email, password }),
+              })
+
+          const { user, token } = response
+
+          // Guardar token y usuario
+          get().setToken(token)
+          get().setUser(user)
+
+          console.log('✅ Login exitoso:', user.name)
+          
+        } catch (error: any) {
+          console.error('❌ Login error:', error.message)
+          get().clearAuth()
+          throw new Error(error.message || 'Error al iniciar sesión')
+        } finally {
+          set({ loading: false })
+        }
+      },
+
+      // ============================================
+      // REGISTER
+      // ============================================
+
+      register: async (email: string, password: string, name: string, role: 'usuario' | 'negocio') => {
+        try {
+          set({ loading: true })
+
+          // Usar mock server en desarrollo, API real en producción
+          const response = import.meta.env.DEV
+            ? await mockAuthServer.register(email, password, name, role)
+            : await apiCall('/auth/register', {
+                method: 'POST',
+                body: JSON.stringify({ email, password, name, role }),
+              })
+
+          const { user, token } = response
+
+          // Guardar token y usuario
+          get().setToken(token)
+          get().setUser(user)
+
+          console.log('✅ Registro exitoso:', user.name)
+          
+        } catch (error: any) {
+          console.error('❌ Register error:', error.message)
+          get().clearAuth()
+          throw new Error(error.message || 'Error al crear la cuenta')
+        } finally {
+          set({ loading: false })
+        }
+      },
+
+      // ============================================
+      // VERIFY TOKEN
+      // ============================================
+
+      verifyToken: async (): Promise<boolean> => {
+        const token = get().token
+        
+        if (!token) {
+          get().clearAuth()
+          return false
+        }
+
+        try {
+          // Usar mock server en desarrollo, API real en producción
+          const response = import.meta.env.DEV
+            ? await mockAuthServer.verify(token)
+            : await apiCall('/auth/verify')
+            
+          const { user } = response
+
+          get().setUser(user)
+          return true
+          
+        } catch (error: any) {
+          console.error('❌ Token verification failed:', error.message)
+          get().clearAuth()
+          return false
+        }
+      },
+
+      // ============================================
+      // CHECK SESSION
+      // ============================================
+
+      checkSession: async () => {
+        try {
+          set({ loading: true })
+          
+          const isValid = await get().verifyToken()
+          
+          if (!isValid) {
+            get().clearAuth()
+          }
+          
+        } catch (error) {
+          console.error('❌ Session check error:', error)
+          get().clearAuth()
+        } finally {
+          set({ 
+            loading: false,
+            initialized: true 
+          })
+        }
+      },
+
+      // ============================================
+      // LOGOUT
+      // ============================================
+
+      logout: () => {
+        console.log('🚪 Cerrando sesión...')
+        
+        // Limpiar todo inmediatamente
+        get().clearAuth()
+        
+        // Opcional: notificar al backend (no bloqueante)
+        apiCall('/auth/logout', { method: 'POST' })
+          .catch(error => console.warn('Logout API call failed:', error))
+        
+        console.log('✅ Sesión cerrada completamente')
+      },
+
+    }),
+    {
+      name: 'zavo-auth-store',
     }
-  },
-}))
+  )
+)

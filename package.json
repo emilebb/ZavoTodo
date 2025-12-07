@@ -10,11 +10,14 @@
     "preview": "vite preview",
     "server": "json-server --watch db.json --port 3001 --host 0.0.0.0",
     "dev:full": "concurrently \"npm run server\" \"npm run dev\"",
-    "deploy": "npm run build && firebase deploy",
-    "deploy:hosting": "npm run build && firebase deploy --only hosting",
-    "deploy:auto": "git add . && git commit -m 'deploy: Auto-deploy trigger' && git push origin main",
+    "build:prod": "vite build --mode production",
+    "deploy": "npm run build:prod && firebase deploy --only hosting",
+    "deploy:full": "npm run build:prod && firebase deploy",
+    "deploy:quick": "vite build && firebase deploy --only hosting",
     "firebase:emulators": "firebase emulators:start",
-    "setup:auto-deploy": "bash setup-auto-deploy.sh"
+    "firebase:login": "firebase login",
+    "firebase:projects": "firebase projects:list",
+    "firebase:use": "firebase use zavowebmobil"
   },
   "dependencies": {
     "@react-google-maps/api": "^2.20.7",

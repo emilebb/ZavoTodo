@@ -37,9 +37,9 @@ const ModernLogin = () => {
 
     try {
       await login(email, password)
-      navigate('/')
-    } catch (error) {
-      // Error is handled by the store
+      navigate('/home')
+    } catch (error: any) {
+      setErrors({ general: error.message })
     }
   }
 
@@ -58,6 +58,13 @@ const ModernLogin = () => {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Sign In</h1>
             <p className="text-gray-500">Welcome back! Please enter your details.</p>
           </div>
+
+          {/* Error general */}
+          {errors.general && (
+            <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+              <p className="text-sm text-red-600">{errors.general}</p>
+            </div>
+          )}
 
           {/* Formulario */}
           <form onSubmit={handleSubmit} className="space-y-6">
