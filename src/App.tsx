@@ -30,6 +30,10 @@ const UserOrders = lazy(() => import('./pages/user/UserOrders'))
 const PackDetail = lazy(() => import('./pages/user/PackDetail'))
 const OrderConfirmed = lazy(() => import('./pages/user/OrderConfirmed'))
 const OrderQR = lazy(() => import('./pages/user/OrderQR'))
+const OrderQRView = lazy(() => import('./pages/user/OrderQRView'))
+
+// Business Pages
+const QRScanner = lazy(() => import('./pages/business/QRScanner'))
 
 /**
  * Loading Fallback Component
@@ -180,6 +184,26 @@ function App() {
             element={
               <Suspense fallback={<PageLoader />}>
                 <OrderQR />
+              </Suspense>
+            } 
+          />
+          
+          {/* Nueva ruta para ver QR del pedido */}
+          <Route 
+            path="pedido/:orderId" 
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <OrderQRView />
+              </Suspense>
+            } 
+          />
+          
+          {/* Ruta para escáner QR (solo negocios) */}
+          <Route 
+            path="negocio/scanner" 
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <QRScanner />
               </Suspense>
             } 
           />

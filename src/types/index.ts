@@ -10,7 +10,9 @@
 
 export type UserRole = 'usuario' | 'negocio'
 
-export type OrderStatus = 'pendiente' | 'confirmado' | 'recogido' | 'cancelado'
+export type OrderStatus = 'pendiente' | 'confirmado' | 'preparando' | 'listo' | 'entregado' | 'cancelado'
+
+export type QRStatus = 'activo' | 'usado' | 'expirado'
 
 export type PackCategory = 'panaderia' | 'restaurante' | 'cafe' | 'supermercado' | 'otro'
 
@@ -95,23 +97,58 @@ export interface Pack {
 
 /**
  * Order - Pedido de un usuario
- * TODO: Integrar con pasarela de pagos
+ * Sistema completo con QR y verificación
  */
 export interface Order {
   id: string
   user_id: string
   pack_id: string
+  business_id: string
   cantidad: number
   precio_total: number
   estado: OrderStatus
-  qr_code: string
+  qr_code?: string
+  qr_data?: QRData
   notas?: string
   fecha_retiro?: string
+  fecha_entrega?: string
   created_at: string
   updated_at?: string
   // Relaciones
   pack?: Pack
   user?: User
+  business?: Business
+}
+
+/**
+ * QRData - Datos del código QR
+ */
+export interface QRData {
+  orderId: string
+  userId: string
+  businessId: string
+  timestamp: string
+  expiresAt: string
+  status: QRStatus
+}
+
+/**
+ * QRVerification - Resultado de verificación QR
+ */
+export interface QRVerification {
+  valid: boolean
+  order?: Order
+  error?: string
+  message: string
+}
+
+/**
+ * OrderQRResponse - Respuesta al generar QR
+ */
+export interface OrderQRResponse {
+  qrCode: string
+  qrData: QRData
+  order: Order
 }
 
 export interface AuthState {

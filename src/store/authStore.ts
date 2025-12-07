@@ -52,7 +52,13 @@ interface AuthState {
 // CONFIGURACIÓN API
 // ============================================
 
+// Configuración para desarrollo local
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
+
+// Debug: Mostrar qué URL está usando
+console.log('🔗 ZAVO API URL:', API_BASE_URL)
+console.log('🔗 Environment:', import.meta.env.MODE)
+console.log('🔗 Development Mode - Using Mock Server')
 
 // ============================================
 // TOKEN MANAGEMENT
@@ -94,6 +100,12 @@ const clearStoredToken = (): void => {
 
 const apiCall = async (endpoint: string, options: RequestInit = {}) => {
   const token = getStoredToken()
+  const fullUrl = `${API_BASE_URL}${endpoint}`
+  
+  // DEBUG: Mostrar URL completa
+  console.log('🌐 API CALL - Full URL:', fullUrl)
+  console.log('🌐 API CALL - Base URL:', API_BASE_URL)
+  console.log('🌐 API CALL - Endpoint:', endpoint)
   
   const config: RequestInit = {
     headers: {
@@ -104,7 +116,7 @@ const apiCall = async (endpoint: string, options: RequestInit = {}) => {
     ...options,
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, config)
+  const response = await fetch(fullUrl, config)
   
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}))
@@ -169,8 +181,11 @@ export const useAuthStore = create<AuthState>()(
         try {
           set({ loading: true })
 
-          // Usar mock server en desarrollo, API real en producción
-          const response = import.meta.env.DEV 
+          // Usar mock server en desarrollo
+          console.log('🔗 Login URL:', API_BASE_URL + '/auth/login')
+          console.log('📤 LOGIN DATA:', { email, password: '***' })
+          
+          const response = import.meta.env.DEV
             ? await mockAuthServer.login(email, password)
             : await apiCall('/auth/login', {
                 method: 'POST',
@@ -179,11 +194,20 @@ export const useAuthStore = create<AuthState>()(
 
           const { user, token } = response
 
+          // Validar y limpiar datos del usuario
+          const cleanUser = {
+            ...user,
+            name: user.name || 'Usuario',
+            email: user.email || '',
+            created_at: user.created_at || new Date().toISOString(),
+            role: user.role || 'usuario'
+          }
+
           // Guardar token y usuario
           get().setToken(token)
-          get().setUser(user)
+          get().setUser(cleanUser)
 
-          console.log('✅ Login exitoso:', user.name)
+          console.log('✅ Login exitoso:', cleanUser.name)
           
         } catch (error: any) {
           console.error('❌ Login error:', error.message)
@@ -202,7 +226,7 @@ export const useAuthStore = create<AuthState>()(
         try {
           set({ loading: true })
 
-          // Usar mock server en desarrollo, API real en producción
+          // Usar mock server en desarrollo
           const response = import.meta.env.DEV
             ? await mockAuthServer.register(email, password, name, role)
             : await apiCall('/auth/register', {
@@ -212,11 +236,20 @@ export const useAuthStore = create<AuthState>()(
 
           const { user, token } = response
 
+          // Validar y limpiar datos del usuario
+          const cleanUser = {
+            ...user,
+            name: user.name || 'Usuario',
+            email: user.email || '',
+            created_at: user.created_at || new Date().toISOString(),
+            role: user.role || 'usuario'
+          }
+
           // Guardar token y usuario
           get().setToken(token)
-          get().setUser(user)
+          get().setUser(cleanUser)
 
-          console.log('✅ Registro exitoso:', user.name)
+          console.log('✅ Registro exitoso:', cleanUser.name)
           
         } catch (error: any) {
           console.error('❌ Register error:', error.message)
@@ -240,14 +273,23 @@ export const useAuthStore = create<AuthState>()(
         }
 
         try {
-          // Usar mock server en desarrollo, API real en producción
+          // Usar mock server en desarrollo
           const response = import.meta.env.DEV
             ? await mockAuthServer.verify(token)
             : await apiCall('/auth/verify')
             
           const { user } = response
 
-          get().setUser(user)
+          // Validar y limpiar datos del usuario
+          const cleanUser = {
+            ...user,
+            name: user.name || 'Usuario',
+            email: user.email || '',
+            created_at: user.created_at || new Date().toISOString(),
+            role: user.role || 'usuario'
+          }
+
+          get().setUser(cleanUser)
           return true
           
         } catch (error: any) {

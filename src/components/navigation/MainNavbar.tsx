@@ -45,7 +45,7 @@ const MainNavbar = () => {
     { path: '/negocio/pedidos', label: 'Pedidos', icon: ShoppingBag },
   ]
 
-  const menuItems = user?.rol === 'negocio' ? businessMenuItems : userMenuItems
+  const menuItems = user?.role === 'negocio' ? businessMenuItems : userMenuItems
 
   return (
     <>
@@ -98,7 +98,7 @@ const MainNavbar = () => {
             <div className="flex items-center space-x-3">
               
               {/* Create Pack Button (Business only) */}
-              {user?.rol === 'negocio' && (
+              {user?.role === 'negocio' && (
                 <Link to="/negocio/packs/nuevo" className="hidden sm:block">
                   <Button size="sm" className="bg-gradient-to-r from-primary-600 to-teal-600 hover:from-primary-700 hover:to-teal-700">
                     <Plus className="w-4 h-4 mr-2" />
@@ -112,12 +112,12 @@ const MainNavbar = () => {
                 <div className="flex items-center space-x-3 px-3 py-2 bg-gray-50 rounded-lg">
                   <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-teal-500 rounded-full flex items-center justify-center">
                     <span className="text-white text-sm font-medium">
-                      {user?.nombre.charAt(0).toUpperCase()}
+                      {user?.name?.charAt(0)?.toUpperCase() || 'U'}
                     </span>
                   </div>
                   <div className="text-left">
-                    <p className="text-sm font-medium text-gray-900">{user?.nombre}</p>
-                    <p className="text-xs text-gray-500 capitalize">{user?.rol}</p>
+                    <p className="text-sm font-medium text-gray-900">{user?.name}</p>
+                    <p className="text-xs text-gray-500 capitalize">{user?.role}</p>
                   </div>
                 </div>
                 
@@ -157,12 +157,12 @@ const MainNavbar = () => {
               <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg mb-3">
                 <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-teal-500 rounded-full flex items-center justify-center">
                   <span className="text-white font-medium">
-                    {user?.nombre.charAt(0).toUpperCase()}
+                    {user?.name?.charAt(0)?.toUpperCase() || 'U'}
                   </span>
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">{user?.nombre}</p>
-                  <p className="text-sm text-gray-500 capitalize">{user?.rol}</p>
+                  <p className="font-medium text-gray-900">{user?.name}</p>
+                  <p className="text-sm text-gray-500 capitalize">{user?.role}</p>
                 </div>
               </div>
 
@@ -187,7 +187,7 @@ const MainNavbar = () => {
               })}
 
               {/* Create Pack Button (Business Mobile) */}
-              {user?.rol === 'negocio' && (
+              {user?.role === 'negocio' && (
                 <Link
                   to="/negocio/packs/nuevo"
                   onClick={() => setIsMobileMenuOpen(false)}
@@ -201,7 +201,7 @@ const MainNavbar = () => {
               {/* Profile & Logout */}
               <div className="border-t border-gray-200 pt-3 mt-3">
                 <Link
-                  to={user?.rol === 'negocio' ? '/negocio/perfil' : '/perfil'}
+                  to={user?.role === 'negocio' ? '/negocio/perfil' : '/perfil'}
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg"
                 >

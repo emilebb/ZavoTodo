@@ -2,7 +2,11 @@ import { useQuery, useMutation } from '@tanstack/react-query'
 import { supabaseService } from '../services/supabaseService'
 import { Pack } from '../types'
 import { useZavoQueryClient } from './useQueryClient'
+import { getFilteredPacks } from '../data/mockPacks'
 import toast from 'react-hot-toast'
+
+// Mock function para simular delay de red
+const mockDelay = (ms: number = 800) => new Promise(resolve => setTimeout(resolve, ms))
 
 export const usePacksQuery = (filters?: {
   searchText?: string
@@ -11,7 +15,20 @@ export const usePacksQuery = (filters?: {
 }) => {
   return useQuery({
     queryKey: ['packs', filters],
-    queryFn: () => supabaseService.getPacks(filters),
+    queryFn: async () => {
+      // En desarrollo, usar datos mock
+      if (import.meta.env.DEV) {
+        await mockDelay(800) // Simular delay de red
+        console.log('🔍 Loading mock packs with filters:', filters)
+        return getFilteredPacks({
+          searchText: filters?.searchText,
+          categoria: undefined, // Por ahora no filtramos por categoría
+          activo: filters?.activo
+        })
+      }
+      // En producción, usar Supabase
+      return supabaseService.getPacks(filters)
+    },
     staleTime: 1000 * 60 * 2, // 2 minutes
   })
 }

@@ -43,7 +43,7 @@ const Home = () => {
               <div className="text-center">
                 <div className="w-16 h-16 bg-primary-200 rounded-full flex items-center justify-center mx-auto mb-3">
                   <span className="text-primary-700 font-bold text-xl">
-                    {pack.business?.nombre.charAt(0)}
+                    {pack.business?.nombre?.charAt(0) || 'N'}
                   </span>
                 </div>
                 <p className="text-sm text-gray-600">{pack.business?.nombre}</p>
@@ -73,7 +73,7 @@ const Home = () => {
           <div className="flex items-center space-x-2 mb-2">
             <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center">
               <span className="text-xs font-medium text-gray-600">
-                {pack.business?.nombre.charAt(0)}
+                {pack.business?.nombre?.charAt(0) || 'N'}
               </span>
             </div>
             <span className="text-sm text-gray-600">{pack.business?.nombre}</span>
@@ -84,12 +84,12 @@ const Home = () => {
           </div>
 
           {/* Pack Title */}
-          <h3 className="font-semibold text-gray-900 text-lg mb-2 line-clamp-1">
+          <h3 className="font-semibold text-gray-900 mb-1 line-clamp-2">
             {pack.titulo}
           </h3>
           
-          {/* Description */}
-          <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+          {/* Pack Description */}
+          <p className="text-sm text-gray-600 mb-3 line-clamp-2">
             {pack.descripcion}
           </p>
           

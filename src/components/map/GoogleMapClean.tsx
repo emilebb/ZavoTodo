@@ -6,7 +6,7 @@
  * Versión limpia sin errores de compilación
  */
 
-import React, { useCallback, useRef, useState, useEffect, memo } from 'react'
+import React, { useCallback, useRef, useState, useEffect } from 'react'
 import { 
   GoogleMap as GoogleMapReact, 
   LoadScript, 
@@ -17,11 +17,15 @@ import {
 import { Coordinate } from '../../types/firebase'
 
 // ============================================
-// CONFIGURACIÓN
+// CONFIGURACIÓN OPTIMIZADA
 // ============================================
 
-const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''
+const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'AIzaSyBW_1wyhBqSWYqWqccWI9UPEYHoyEJJOpU'
 const LIBRARIES: ("places" | "geometry")[] = ['places', 'geometry']
+
+// Configuración optimizada para Bogotá, Colombia
+const DEFAULT_CENTER: Coordinate = { lat: 4.6097, lng: -74.0817 }
+const DEFAULT_ZOOM = 13
 
 // ============================================
 // INTERFACES
@@ -63,9 +67,9 @@ interface GoogleMapProps {
 // COMPONENTE PRINCIPAL
 // ============================================
 
-const GoogleMapClean = memo(function GoogleMapClean({
-  center = { lat: 4.6761, lng: -74.0486 },
-  zoom = 14,
+const GoogleMapClean: React.FC<GoogleMapProps> = ({
+  center = DEFAULT_CENTER, // Bogotá centro
+  zoom = DEFAULT_ZOOM,
   markers = [],
   routes = [],
   onMarkerClick,
@@ -76,7 +80,7 @@ const GoogleMapClean = memo(function GoogleMapClean({
   showTraffic = false,
   className = '',
   children,
-}: GoogleMapProps) {
+}) => {
   
   const mapRef = useRef<google.maps.Map | null>(null)
   const directionsServiceRef = useRef<google.maps.DirectionsService | null>(null)
@@ -244,11 +248,15 @@ const GoogleMapClean = memo(function GoogleMapClean({
         googleMapsApiKey={GOOGLE_MAPS_API_KEY}
         libraries={LIBRARIES}
         onError={onLoadError}
+        preventGoogleFontsLoading={true}
+        language="es"
+        region="CO"
         loadingElement={
-          <div className="flex items-center justify-center h-full bg-gray-100">
+          <div className="flex items-center justify-center h-full bg-gradient-to-br from-green-50 to-blue-50">
             <div className="text-center">
               <div className="animate-spin w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-              <p className="text-gray-600 font-medium">Cargando Google Maps...</p>
+              <p className="text-gray-700 font-medium">Cargando Google Maps...</p>
+              <p className="text-gray-500 text-sm mt-2">Esto puede tomar unos segundos</p>
             </div>
           </div>
         }
@@ -328,6 +336,6 @@ const GoogleMapClean = memo(function GoogleMapClean({
       </LoadScript>
     </div>
   )
-})
+};
 
 export default GoogleMapClean
