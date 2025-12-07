@@ -20,6 +20,7 @@ const RoleSelection = lazy(() => import('./pages/auth/RoleSelection'))
 // Main Pages - Lazy loaded para mejor performance inicial
 const DemoPage = lazy(() => import('./pages/DemoPage'))
 const MapDemo = lazy(() => import('./pages/MapDemo'))
+const GoogleMapDemo = lazy(() => import('./pages/GoogleMapDemo'))
 const Home = lazy(() => import('./pages/user/Home'))
 
 // User Pages
@@ -104,6 +105,14 @@ function App() {
             element={
               <Suspense fallback={<PageLoader />}>
                 <MapDemo />
+              </Suspense>
+            } 
+          />
+          <Route 
+            path="google-maps" 
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <GoogleMapDemo />
               </Suspense>
             } 
           />

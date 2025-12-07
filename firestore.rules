@@ -1,0 +1,186 @@
+/**
+ * ============================================
+ * ZAVO - Firestore Security Rules
+ * ============================================
+ * 
+ * Reglas de seguridad para Firestore
+ * Protege los datos según el rol del usuario
+ */
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ============================================
+    // FUNCIONES HELPER
+    // ============================================
+    
+    // Verifica si el usuario está autenticado
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Verifica si el usuario es el dueño del documento
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Obtiene el rol del usuario actual
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+    
+    // Verifica si el usuario es admin
+    function isAdmin() {
+      return isAuthenticated() && getUserRole() == 'admin';
+    }
+    
+    // Verifica si el usuario es repartidor
+    function isDriver() {
+      return isAuthenticated() && getUserRole() == 'repartidor';
+    }
+    
+    // Verifica si el usuario es cliente
+    function isClient() {
+      return isAuthenticated() && getUserRole() == 'cliente';
+    }
+    
+    // ============================================
+    // USUARIOS (users)
+    // ============================================
+    
+    match /users/{userId} {
+      // Cualquiera autenticado puede leer perfiles públicos
+      allow read: if isAuthenticated();
+      
+      // Solo el propio usuario puede crear su perfil
+      allow create: if isOwner(userId);
+      
+      // Solo el propio usuario o admin puede actualizar
+      allow update: if isOwner(userId) || isAdmin();
+      
+      // Solo admin puede eliminar usuarios
+      allow delete: if isAdmin();
+    }
+    
+    // ============================================
+    // PRODUCTOS (products)
+    // ============================================
+    
+    match /products/{productId} {
+      // Cualquiera puede leer productos
+      allow read: if true;
+      
+      // Solo admin puede crear/actualizar/eliminar productos
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // ============================================
+    // PEDIDOS (orders)
+    // ============================================
+    
+    match /orders/{orderId} {
+      // El cliente puede leer sus propios pedidos
+      // Admin puede leer todos los pedidos
+      // Repartidor puede leer pedidos asignados a él
+      allow read: if isAuthenticated() && (
+        resource.data.user_id == request.auth.uid ||
+        resource.data.driver_id == request.auth.uid ||
+        isAdmin()
+      );
+      
+      // Solo clientes autenticados pueden crear pedidos
+      allow create: if isClient() && 
+        request.resource.data.user_id == request.auth.uid;
+      
+      // Admin puede actualizar cualquier pedido
+      // Repartidor puede actualizar pedidos asignados (solo ciertos campos)
+      // Cliente puede cancelar su propio pedido (solo si está pendiente)
+      allow update: if isAdmin() || (
+        isDriver() && 
+        resource.data.driver_id == request.auth.uid &&
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['status', 'updated_at', 'picked_up_at', 'delivered_at'])
+      ) || (
+        isOwner(resource.data.user_id) &&
+        resource.data.status == 'pending' &&
+        request.resource.data.status == 'cancelled'
+      );
+      
+      // Solo admin puede eliminar pedidos
+      allow delete: if isAdmin();
+      
+      // ============================================
+      // ITEMS DEL PEDIDO (order_items)
+      // ============================================
+      
+      match /order_items/{itemId} {
+        // Mismas reglas que el pedido padre
+        allow read: if isAuthenticated() && (
+          get(/databases/$(database)/documents/orders/$(orderId)).data.user_id == request.auth.uid ||
+          get(/databases/$(database)/documents/orders/$(orderId)).data.driver_id == request.auth.uid ||
+          isAdmin()
+        );
+        
+        // Solo se pueden crear al crear el pedido
+        allow create: if isClient() && 
+          get(/databases/$(database)/documents/orders/$(orderId)).data.user_id == request.auth.uid;
+        
+        // No se pueden actualizar ni eliminar items
+        allow update, delete: if isAdmin();
+      }
+      
+      // ============================================
+      // UBICACIONES DEL PEDIDO (order_locations)
+      // ============================================
+      
+      match /order_locations/{locationId} {
+        // Cliente y admin pueden leer ubicaciones
+        allow read: if isAuthenticated() && (
+          get(/databases/$(database)/documents/orders/$(orderId)).data.user_id == request.auth.uid ||
+          get(/databases/$(database)/documents/orders/$(orderId)).data.driver_id == request.auth.uid ||
+          isAdmin()
+        );
+        
+        // Solo el repartidor asignado puede agregar ubicaciones
+        allow create: if isDriver() && 
+          get(/databases/$(database)/documents/orders/$(orderId)).data.driver_id == request.auth.uid;
+        
+        // No se pueden actualizar ni eliminar ubicaciones
+        allow update, delete: if isAdmin();
+      }
+    }
+    
+    // ============================================
+    // NOTIFICACIONES (notifications)
+    // ============================================
+    
+    match /notifications/{notificationId} {
+      // Solo el usuario destinatario puede leer sus notificaciones
+      allow read: if isOwner(resource.data.user_id);
+      
+      // Solo el sistema (admin) puede crear notificaciones
+      allow create: if isAdmin();
+      
+      // El usuario puede marcar como leída
+      allow update: if isOwner(resource.data.user_id) &&
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['is_read', 'read_at']);
+      
+      // El usuario puede eliminar sus notificaciones
+      allow delete: if isOwner(resource.data.user_id) || isAdmin();
+    }
+    
+    // ============================================
+    // NEGOCIOS (businesses)
+    // ============================================
+    
+    match /businesses/{businessId} {
+      // Cualquiera puede leer negocios activos
+      allow read: if resource.data.is_active == true || isAdmin();
+      
+      // Solo admin puede gestionar negocios
+      allow create, update, delete: if isAdmin();
+    }
+  }
+}
