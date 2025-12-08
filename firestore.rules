@@ -53,8 +53,9 @@ service cloud.firestore {
       // Cualquiera autenticado puede leer perfiles públicos
       allow read: if isAuthenticated();
       
-      // Solo el propio usuario puede crear su perfil
-      allow create: if isOwner(userId);
+      // El usuario puede crear su propio perfil al registrarse
+      // Verifica que el userId del documento coincida con el uid del usuario autenticado
+      allow create: if isAuthenticated() && request.auth.uid == userId;
       
       // Solo el propio usuario o admin puede actualizar
       allow update: if isOwner(userId) || isAdmin();

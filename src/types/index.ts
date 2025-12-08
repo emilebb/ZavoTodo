@@ -21,23 +21,31 @@ export type PackCategory = 'panaderia' | 'restaurante' | 'cafe' | 'supermercado'
 // ============================================
 
 /**
- * User - Usuario de la plataforma
- * TODO: Integrar con sistema de auth (Supabase/Firebase)
+ * User - Usuario del sistema (cliente)
  */
 export interface User {
   id: string
+  name: string
   email: string
-  nombre: string
-  rol: UserRole
-  telefono?: string
-  avatar_url?: string
+  role: 'user' | 'business' | 'admin'
+  phone?: string
+  avatar?: string
+  verified: boolean
+  active: boolean
   created_at: string
   updated_at?: string
+  
+  // Campos específicos para usuarios
+  dateOfBirth?: string
+  preferences?: {
+    notifications: boolean
+    marketing: boolean
+    categories: string[]
+  }
 }
 
 /**
- * Business - Negocio aliado
- * TODO: Integrar con API de verificación de negocios
+ * Business - Negocio/Restaurante
  */
 export interface Business {
   id: string
@@ -171,4 +179,90 @@ export interface FilterState {
     lat: number
     lng: number
   } | null
+}
+
+// ============================================
+// REGISTRATION TYPES
+// ============================================
+
+/**
+ * RegisterUserData - Datos para registro de usuario
+ */
+export interface RegisterUserData {
+  name: string
+  email: string
+  password: string
+  phone?: string
+  dateOfBirth?: string
+  acceptTerms: boolean
+  acceptMarketing?: boolean
+}
+
+/**
+ * RegisterBusinessData - Datos para registro de negocio
+ */
+export interface RegisterBusinessData {
+  // Datos del administrador
+  adminName: string
+  adminEmail: string
+  adminPassword: string
+  adminPhone?: string
+  
+  // Datos del negocio
+  businessName: string
+  businessEmail?: string
+  businessPhone: string
+  address: string
+  category: string
+  description?: string
+  
+  // Información legal
+  nit?: string
+  legalName?: string
+  
+  // Términos
+  acceptTerms: boolean
+  acceptBusinessTerms: boolean
+}
+
+/**
+ * BusinessProfile - Perfil completo del negocio
+ */
+export interface BusinessProfile {
+  id: string
+  userId: string // ID del usuario que administra el negocio
+  businessName: string
+  email: string
+  phone: string
+  address: string
+  category: string
+  description?: string
+  
+  // Información legal
+  nit?: string
+  legalName?: string
+  
+  // Ubicación
+  lat?: number
+  lng?: number
+  
+  // Configuración
+  logo?: string
+  coverImage?: string
+  rating: number
+  verified: boolean
+  active: boolean
+  
+  // Horarios
+  schedule?: {
+    [key: string]: {
+      open: string
+      close: string
+      isOpen: boolean
+    }
+  }
+  
+  // Timestamps
+  created_at: string
+  updated_at?: string
 }

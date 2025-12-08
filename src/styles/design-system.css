@@ -1,0 +1,622 @@
+/**
+ * ============================================
+ * ZAVO - Design System
+ * ============================================
+ * 
+ * Identidad visual futurista con:
+ * - Colores neon pastel
+ * - Gradientes modernos
+ * - Animaciones sutiles
+ * - Glassmorphism
+ * - Sombras con color
+ */
+
+/* ============================================
+   CSS VARIABLES - COLORES ZAVO
+   ============================================ */
+
+:root {
+  /* Primary - Verde Neon Pastel */
+  --zavo-primary-50: #ecfdf5;
+  --zavo-primary-100: #d1fae5;
+  --zavo-primary-200: #a7f3d0;
+  --zavo-primary-300: #6ee7b7;
+  --zavo-primary-400: #34d399;
+  --zavo-primary-500: #10b981;
+  --zavo-primary-600: #059669;
+  --zavo-primary-700: #047857;
+  --zavo-primary-800: #065f46;
+  --zavo-primary-900: #064e3b;
+  
+  /* Secondary - Cyan Neon */
+  --zavo-cyan-50: #ecfeff;
+  --zavo-cyan-100: #cffafe;
+  --zavo-cyan-200: #a5f3fc;
+  --zavo-cyan-300: #67e8f9;
+  --zavo-cyan-400: #22d3ee;
+  --zavo-cyan-500: #06b6d4;
+  --zavo-cyan-600: #0891b2;
+  
+  /* Accent - Purple Neon */
+  --zavo-purple-50: #faf5ff;
+  --zavo-purple-100: #f3e8ff;
+  --zavo-purple-200: #e9d5ff;
+  --zavo-purple-300: #d8b4fe;
+  --zavo-purple-400: #c084fc;
+  --zavo-purple-500: #a855f7;
+  --zavo-purple-600: #9333ea;
+  
+  /* Accent - Pink Neon */
+  --zavo-pink-50: #fdf2f8;
+  --zavo-pink-100: #fce7f3;
+  --zavo-pink-200: #fbcfe8;
+  --zavo-pink-300: #f9a8d4;
+  --zavo-pink-400: #f472b6;
+  --zavo-pink-500: #ec4899;
+  
+  /* Accent - Orange Neon */
+  --zavo-orange-50: #fff7ed;
+  --zavo-orange-100: #ffedd5;
+  --zavo-orange-200: #fed7aa;
+  --zavo-orange-300: #fdba74;
+  --zavo-orange-400: #fb923c;
+  --zavo-orange-500: #f97316;
+  
+  /* Neutrals */
+  --zavo-gray-50: #f9fafb;
+  --zavo-gray-100: #f3f4f6;
+  --zavo-gray-200: #e5e7eb;
+  --zavo-gray-300: #d1d5db;
+  --zavo-gray-400: #9ca3af;
+  --zavo-gray-500: #6b7280;
+  --zavo-gray-600: #4b5563;
+  --zavo-gray-700: #374151;
+  --zavo-gray-800: #1f2937;
+  --zavo-gray-900: #111827;
+  
+  /* Gradientes */
+  --zavo-gradient-primary: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+  --zavo-gradient-secondary: linear-gradient(135deg, #06b6d4 0%, #a855f7 100%);
+  --zavo-gradient-accent: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+  --zavo-gradient-warm: linear-gradient(135deg, #f97316 0%, #ec4899 100%);
+  --zavo-gradient-cool: linear-gradient(135deg, #10b981 0%, #a855f7 100%);
+  --zavo-gradient-neon: linear-gradient(135deg, #34d399 0%, #22d3ee 50%, #c084fc 100%);
+  --zavo-gradient-sunset: linear-gradient(135deg, #f472b6 0%, #fb923c 100%);
+  --zavo-gradient-aurora: linear-gradient(135deg, #6ee7b7 0%, #67e8f9 33%, #d8b4fe 66%, #f9a8d4 100%);
+  
+  /* Glassmorphism */
+  --zavo-glass-bg: rgba(255, 255, 255, 0.7);
+  --zavo-glass-border: rgba(255, 255, 255, 0.3);
+  --zavo-glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  
+  /* Sombras con color */
+  --zavo-shadow-primary: 0 10px 40px -10px rgba(16, 185, 129, 0.4);
+  --zavo-shadow-cyan: 0 10px 40px -10px rgba(6, 182, 212, 0.4);
+  --zavo-shadow-purple: 0 10px 40px -10px rgba(168, 85, 247, 0.4);
+  --zavo-shadow-pink: 0 10px 40px -10px rgba(236, 72, 153, 0.4);
+  
+  /* Animaciones */
+  --zavo-transition-fast: 150ms ease;
+  --zavo-transition-normal: 250ms ease;
+  --zavo-transition-slow: 400ms ease;
+  --zavo-transition-bounce: 500ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* ============================================
+   ANIMACIONES ZAVO
+   ============================================ */
+
+/* Fade In Up */
+@keyframes zavo-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Fade In Scale */
+@keyframes zavo-fade-in-scale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Slide In Right */
+@keyframes zavo-slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Slide In Left */
+@keyframes zavo-slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Bounce In */
+@keyframes zavo-bounce-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Pulse Glow */
+@keyframes zavo-pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(16, 185, 129, 0.6);
+  }
+}
+
+/* Float */
+@keyframes zavo-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Shimmer */
+@keyframes zavo-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Rotate */
+@keyframes zavo-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Gradient Flow */
+@keyframes zavo-gradient-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* ============================================
+   CLASES DE ANIMACIÓN
+   ============================================ */
+
+.zavo-animate-fade-in-up {
+  animation: zavo-fade-in-up 0.5s ease forwards;
+}
+
+.zavo-animate-fade-in-scale {
+  animation: zavo-fade-in-scale 0.4s ease forwards;
+}
+
+.zavo-animate-slide-in-right {
+  animation: zavo-slide-in-right 0.4s ease forwards;
+}
+
+.zavo-animate-slide-in-left {
+  animation: zavo-slide-in-left 0.4s ease forwards;
+}
+
+.zavo-animate-bounce-in {
+  animation: zavo-bounce-in 0.6s ease forwards;
+}
+
+.zavo-animate-pulse-glow {
+  animation: zavo-pulse-glow 2s ease-in-out infinite;
+}
+
+.zavo-animate-float {
+  animation: zavo-float 3s ease-in-out infinite;
+}
+
+.zavo-animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  background-size: 200% 100%;
+  animation: zavo-shimmer 1.5s infinite;
+}
+
+.zavo-animate-rotate {
+  animation: zavo-rotate 1s linear infinite;
+}
+
+.zavo-animate-gradient {
+  background-size: 200% 200%;
+  animation: zavo-gradient-flow 3s ease infinite;
+}
+
+/* Stagger animations for lists */
+.zavo-stagger > *:nth-child(1) { animation-delay: 0.05s; }
+.zavo-stagger > *:nth-child(2) { animation-delay: 0.1s; }
+.zavo-stagger > *:nth-child(3) { animation-delay: 0.15s; }
+.zavo-stagger > *:nth-child(4) { animation-delay: 0.2s; }
+.zavo-stagger > *:nth-child(5) { animation-delay: 0.25s; }
+.zavo-stagger > *:nth-child(6) { animation-delay: 0.3s; }
+.zavo-stagger > *:nth-child(7) { animation-delay: 0.35s; }
+.zavo-stagger > *:nth-child(8) { animation-delay: 0.4s; }
+
+/* ============================================
+   COMPONENTES GLASSMORPHISM
+   ============================================ */
+
+.zavo-glass {
+  background: var(--zavo-glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--zavo-glass-border);
+  box-shadow: var(--zavo-glass-shadow);
+}
+
+.zavo-glass-dark {
+  background: rgba(17, 24, 39, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ============================================
+   BOTONES ZAVO
+   ============================================ */
+
+.zavo-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  transition: all var(--zavo-transition-normal);
+  overflow: hidden;
+}
+
+.zavo-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 100%);
+  opacity: 0;
+  transition: opacity var(--zavo-transition-fast);
+}
+
+.zavo-btn:hover::before {
+  opacity: 1;
+}
+
+.zavo-btn-primary {
+  background: var(--zavo-gradient-primary);
+  color: white;
+  box-shadow: var(--zavo-shadow-primary);
+}
+
+.zavo-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 50px -10px rgba(16, 185, 129, 0.5);
+}
+
+.zavo-btn-secondary {
+  background: var(--zavo-gradient-secondary);
+  color: white;
+  box-shadow: var(--zavo-shadow-cyan);
+}
+
+.zavo-btn-accent {
+  background: var(--zavo-gradient-accent);
+  color: white;
+  box-shadow: var(--zavo-shadow-purple);
+}
+
+.zavo-btn-neon {
+  background: var(--zavo-gradient-neon);
+  color: white;
+  box-shadow: 0 10px 40px -10px rgba(52, 211, 153, 0.5);
+}
+
+.zavo-btn-ghost {
+  background: transparent;
+  color: var(--zavo-gray-700);
+  border: 2px solid var(--zavo-gray-200);
+}
+
+.zavo-btn-ghost:hover {
+  border-color: var(--zavo-primary-500);
+  color: var(--zavo-primary-600);
+  background: var(--zavo-primary-50);
+}
+
+/* ============================================
+   TARJETAS ZAVO
+   ============================================ */
+
+.zavo-card {
+  background: white;
+  border-radius: 1.25rem;
+  border: 1px solid var(--zavo-gray-100);
+  overflow: hidden;
+  transition: all var(--zavo-transition-normal);
+}
+
+.zavo-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.1);
+  border-color: var(--zavo-gray-200);
+}
+
+.zavo-card-gradient {
+  position: relative;
+  background: white;
+  border-radius: 1.25rem;
+  overflow: hidden;
+}
+
+.zavo-card-gradient::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 2px;
+  background: var(--zavo-gradient-neon);
+  border-radius: 1.25rem;
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+/* ============================================
+   BADGES ZAVO
+   ============================================ */
+
+.zavo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 9999px;
+}
+
+.zavo-badge-primary {
+  background: var(--zavo-primary-100);
+  color: var(--zavo-primary-700);
+}
+
+.zavo-badge-cyan {
+  background: var(--zavo-cyan-100);
+  color: var(--zavo-cyan-600);
+}
+
+.zavo-badge-purple {
+  background: var(--zavo-purple-100);
+  color: var(--zavo-purple-600);
+}
+
+.zavo-badge-pink {
+  background: var(--zavo-pink-100);
+  color: var(--zavo-pink-500);
+}
+
+.zavo-badge-orange {
+  background: var(--zavo-orange-100);
+  color: var(--zavo-orange-500);
+}
+
+.zavo-badge-neon {
+  background: var(--zavo-gradient-neon);
+  color: white;
+}
+
+/* ============================================
+   INPUTS ZAVO
+   ============================================ */
+
+.zavo-input {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  background: var(--zavo-gray-50);
+  border: 2px solid transparent;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  transition: all var(--zavo-transition-fast);
+}
+
+.zavo-input:focus {
+  outline: none;
+  background: white;
+  border-color: var(--zavo-primary-500);
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+}
+
+.zavo-input-icon {
+  position: relative;
+}
+
+.zavo-input-icon .icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--zavo-gray-400);
+}
+
+.zavo-input-icon input {
+  padding-left: 3rem;
+}
+
+/* ============================================
+   EFECTOS ESPECIALES
+   ============================================ */
+
+/* Neon Glow Text */
+.zavo-text-glow {
+  text-shadow: 
+    0 0 10px rgba(16, 185, 129, 0.5),
+    0 0 20px rgba(16, 185, 129, 0.3),
+    0 0 30px rgba(16, 185, 129, 0.2);
+}
+
+/* Gradient Text */
+.zavo-text-gradient {
+  background: var(--zavo-gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.zavo-text-gradient-neon {
+  background: var(--zavo-gradient-neon);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Hover Lift */
+.zavo-hover-lift {
+  transition: transform var(--zavo-transition-normal), box-shadow var(--zavo-transition-normal);
+}
+
+.zavo-hover-lift:hover {
+  transform: translateY(-4px);
+}
+
+/* Hover Scale */
+.zavo-hover-scale {
+  transition: transform var(--zavo-transition-normal);
+}
+
+.zavo-hover-scale:hover {
+  transform: scale(1.02);
+}
+
+/* Hover Glow */
+.zavo-hover-glow {
+  transition: box-shadow var(--zavo-transition-normal);
+}
+
+.zavo-hover-glow:hover {
+  box-shadow: var(--zavo-shadow-primary);
+}
+
+/* ============================================
+   SCROLLBAR PERSONALIZADO
+   ============================================ */
+
+.zavo-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.zavo-scrollbar::-webkit-scrollbar-track {
+  background: var(--zavo-gray-100);
+  border-radius: 3px;
+}
+
+.zavo-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--zavo-gradient-primary);
+  border-radius: 3px;
+}
+
+.zavo-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--zavo-primary-600);
+}
+
+/* Hide scrollbar but keep functionality */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* ============================================
+   LOADING STATES
+   ============================================ */
+
+.zavo-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--zavo-gray-200) 0%,
+    var(--zavo-gray-100) 50%,
+    var(--zavo-gray-200) 100%
+  );
+  background-size: 200% 100%;
+  animation: zavo-shimmer 1.5s infinite;
+  border-radius: 0.5rem;
+}
+
+.zavo-spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid var(--zavo-gray-200);
+  border-top-color: var(--zavo-primary-500);
+  border-radius: 50%;
+  animation: zavo-rotate 0.8s linear infinite;
+}
+
+/* ============================================
+   RESPONSIVE UTILITIES
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

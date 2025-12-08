@@ -75,85 +75,275 @@ const authenticateToken = async (req, res, next) => {
 // REGISTER
 // ============================================
 
-router.post('/register', async (req, res) => {
+/**
+ * POST /register/user
+ * Registrar nuevo usuario (cliente)
+ */
+router.post('/register/user', async (req, res) => {
   try {
-    // Validar datos
-    const { error, value } = registerSchema.validate(req.body);
+    const userSchema = Joi.object({
+      name: Joi.string().min(2).max(100).required(),
+      email: Joi.string().email().required(),
+      password: Joi.string().min(6).required(),
+      phone: Joi.string().optional(),
+      dateOfBirth: Joi.string().optional(),
+      acceptTerms: Joi.boolean().valid(true).required(),
+      acceptMarketing: Joi.boolean().optional()
+    })
+
+    const { error, value } = userSchema.validate(req.body)
     if (error) {
       return res.status(400).json({
         error: 'Datos inválidos',
         details: error.details[0].message
-      });
+      })
     }
 
-    const { email, password, name, role } = value;
+    const { name, email, password, phone, dateOfBirth, acceptMarketing } = value
 
     // Verificar si el usuario ya existe
     const existingUser = await db.collection('users')
-      .where('email', '==', email.toLowerCase())
-      .get();
+      .where('email', '==', email)
+      .get()
 
     if (!existingUser.empty) {
-      return res.status(400).json({
-        error: 'Este email ya está registrado'
-      });
+      return res.status(409).json({ error: 'El usuario ya existe' })
     }
 
-    // Hash de la contraseña
-    const hashedPassword = await bcrypt.hash(password, 12);
+    // Crear usuario en Firebase Auth
+    const userRecord = await admin.auth().createUser({
+      email,
+      password,
+      displayName: name,
+      phoneNumber: phone
+    })
 
-    // Crear usuario
+    // Crear documento de usuario en Firestore
     const userData = {
-      email: email.toLowerCase(),
-      name: name.trim(),
-      role,
-      password: hashedPassword,
+      id: userRecord.uid,
+      name,
+      email,
+      phone: phone || null,
+      role: 'user',
+      dateOfBirth: dateOfBirth || null,
+      preferences: {
+        notifications: true,
+        marketing: acceptMarketing || false,
+        categories: []
+      },
+      verified: false,
+      active: true,
       created_at: admin.firestore.FieldValue.serverTimestamp(),
       updated_at: admin.firestore.FieldValue.serverTimestamp()
-    };
+    }
 
-    const userRef = await db.collection('users').add(userData);
-    const userId = userRef.id;
+    await db.collection('users').doc(userRecord.uid).set(userData)
 
-    // Generar JWT
+    // Generar token JWT
     const token = jwt.sign(
-      { userId, email: email.toLowerCase(), role },
+      { uid: userRecord.uid, email, role: 'user' },
       JWT_SECRET,
-      { expiresIn: JWT_EXPIRES_IN }
-    );
+      { expiresIn: '7d' }
+    )
 
-    // Guardar token en la base de datos
-    await db.collection('tokens').doc(token).set({
-      userId,
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    // Guardar token en Firestore
+    await db.collection('tokens').doc(userRecord.uid).set({
+      token,
+      userId: userRecord.uid,
       expiresAt: admin.firestore.Timestamp.fromDate(
-        new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 días
-      )
-    });
-
-    // Respuesta (sin contraseña)
-    const user = {
-      id: userId,
-      email: email.toLowerCase(),
-      name: name.trim(),
-      role,
-      created_at: new Date().toISOString()
-    };
+        new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+      ),
+      created_at: admin.firestore.FieldValue.serverTimestamp()
+    })
 
     res.status(201).json({
-      message: 'Usuario creado exitosamente',
-      user,
-      token
-    });
+      message: 'Usuario registrado exitosamente',
+      token,
+      user: {
+        ...userData,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+    })
 
   } catch (error) {
-    console.error('Register error:', error);
-    res.status(500).json({
-      error: 'Error interno del servidor',
-      message: error.message
-    });
+    console.error('Error en registro de usuario:', error)
+    res.status(500).json({ error: 'Error interno del servidor' })
   }
-});
+})
+
+/**
+ * POST /register/business
+ * Registrar nuevo negocio
+ */
+router.post('/register/business', async (req, res) => {
+  try {
+    const businessSchema = Joi.object({
+      // Datos del administrador
+      adminName: Joi.string().min(2).max(100).required(),
+      adminEmail: Joi.string().email().required(),
+      adminPassword: Joi.string().min(6).required(),
+      adminPhone: Joi.string().optional(),
+      
+      // Datos del negocio
+      businessName: Joi.string().min(2).max(200).required(),
+      businessEmail: Joi.string().email().optional(),
+      businessPhone: Joi.string().required(),
+      address: Joi.string().min(10).max(500).required(),
+      category: Joi.string().required(),
+      description: Joi.string().max(1000).optional(),
+      
+      // Información legal
+      nit: Joi.string().optional(),
+      legalName: Joi.string().optional(),
+      
+      // Términos
+      acceptTerms: Joi.boolean().valid(true).required(),
+      acceptBusinessTerms: Joi.boolean().valid(true).required()
+    })
+
+    const { error, value } = businessSchema.validate(req.body)
+    if (error) {
+      return res.status(400).json({
+        error: 'Datos inválidos',
+        details: error.details[0].message
+      })
+    }
+
+    const {
+      adminName,
+      adminEmail,
+      adminPassword,
+      adminPhone,
+      businessName,
+      businessEmail,
+      businessPhone,
+      address,
+      category,
+      description,
+      nit,
+      legalName
+    } = value
+
+    // Verificar si el email ya existe
+    const existingUser = await db.collection('users')
+      .where('email', '==', adminEmail)
+      .get()
+
+    if (!existingUser.empty) {
+      return res.status(409).json({ error: 'El email ya está registrado' })
+    }
+
+    // Verificar si el negocio ya existe
+    const existingBusiness = await db.collection('businesses')
+      .where('businessName', '==', businessName)
+      .get()
+
+    if (!existingBusiness.empty) {
+      return res.status(409).json({ error: 'Ya existe un negocio con ese nombre' })
+    }
+
+    // Crear usuario administrador en Firebase Auth
+    const userRecord = await admin.auth().createUser({
+      email: adminEmail,
+      password: adminPassword,
+      displayName: adminName,
+      phoneNumber: adminPhone
+    })
+
+    // Crear documento de usuario administrador
+    const userData = {
+      id: userRecord.uid,
+      name: adminName,
+      email: adminEmail,
+      phone: adminPhone || null,
+      role: 'business',
+      verified: false,
+      active: true,
+      created_at: admin.firestore.FieldValue.serverTimestamp(),
+      updated_at: admin.firestore.FieldValue.serverTimestamp()
+    }
+
+    await db.collection('users').doc(userRecord.uid).set(userData)
+
+    // Crear documento del negocio
+    const businessId = 'business_' + userRecord.uid
+    const businessData = {
+      id: businessId,
+      userId: userRecord.uid,
+      businessName,
+      email: businessEmail || adminEmail,
+      phone: businessPhone,
+      address,
+      category,
+      description: description || '',
+      nit: nit || null,
+      legalName: legalName || businessName,
+      lat: null, // Se puede agregar después con geocoding
+      lng: null,
+      logo: null,
+      coverImage: null,
+      rating: 0,
+      verified: false,
+      active: true,
+      schedule: {
+        monday: { open: '08:00', close: '18:00', isOpen: true },
+        tuesday: { open: '08:00', close: '18:00', isOpen: true },
+        wednesday: { open: '08:00', close: '18:00', isOpen: true },
+        thursday: { open: '08:00', close: '18:00', isOpen: true },
+        friday: { open: '08:00', close: '18:00', isOpen: true },
+        saturday: { open: '08:00', close: '16:00', isOpen: true },
+        sunday: { open: '10:00', close: '14:00', isOpen: false }
+      },
+      created_at: admin.firestore.FieldValue.serverTimestamp(),
+      updated_at: admin.firestore.FieldValue.serverTimestamp()
+    }
+
+    await db.collection('businesses').doc(businessId).set(businessData)
+
+    // Generar token JWT
+    const token = jwt.sign(
+      { 
+        uid: userRecord.uid, 
+        email: adminEmail, 
+        role: 'business',
+        businessId: businessId
+      },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    )
+
+    // Guardar token en Firestore
+    await db.collection('tokens').doc(userRecord.uid).set({
+      token,
+      userId: userRecord.uid,
+      businessId: businessId,
+      expiresAt: admin.firestore.Timestamp.fromDate(
+        new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+      ),
+      created_at: admin.firestore.FieldValue.serverTimestamp()
+    })
+
+    res.status(201).json({
+      message: 'Negocio registrado exitosamente',
+      token,
+      user: {
+        ...userData,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      },
+      business: {
+        ...businessData,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+    })
+
+  } catch (error) {
+    console.error('Error en registro de negocio:', error)
+    res.status(500).json({ error: 'Error interno del servidor' })
+  }
+})
 
 // ============================================
 // LOGIN

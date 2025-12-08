@@ -17,7 +17,9 @@ import AuthGuard from './components/auth/AuthGuard'
 // Auth Pages
 const RoleSelection = lazy(() => import('./pages/auth/RoleSelection'))
 const ModernLogin = lazy(() => import('./pages/auth/ModernLogin'))
-const ModernRegister = lazy(() => import('./pages/auth/ModernRegister'))
+const RegisterPage = lazy(() => import('./pages/auth/RegisterPage'))
+const OnboardingPage = lazy(() => import('./pages/OnboardingPage'))
+const BusinessOnboardingPage = lazy(() => import('./pages/BusinessOnboardingPage'))
 
 // Main Pages - Lazy loaded para mejor performance inicial
 const DemoPage = lazy(() => import('./pages/DemoPage'))
@@ -31,9 +33,12 @@ const PackDetail = lazy(() => import('./pages/user/PackDetail'))
 const OrderConfirmed = lazy(() => import('./pages/user/OrderConfirmed'))
 const OrderQR = lazy(() => import('./pages/user/OrderQR'))
 const OrderQRView = lazy(() => import('./pages/user/OrderQRView'))
+const ProfilePage = lazy(() => import('./pages/user/ProfilePage'))
+const ExplorePage = lazy(() => import('./pages/user/ExplorePage'))
 
 // Business Pages
 const QRScanner = lazy(() => import('./pages/business/QRScanner'))
+const BusinessDashboardPro = lazy(() => import('./pages/business/NewBusinessDashboard'))
 
 /**
  * Loading Fallback Component
@@ -85,7 +90,7 @@ function App() {
           element={
             <AuthGuard requireAuth={false}>
               <Suspense fallback={<AppLoader />}>
-                <ModernRegister />
+                <RegisterPage />
               </Suspense>
             </AuthGuard>
           } 
@@ -103,6 +108,26 @@ function App() {
             } 
           />
         </Route>
+
+        {/* Onboarding Route */}
+        <Route 
+          path="/onboarding" 
+          element={
+            <Suspense fallback={<PageLoader />}>
+              <OnboardingPage />
+            </Suspense>
+          } 
+        />
+        
+        {/* Business Onboarding Route */}
+        <Route 
+          path="/negocio/onboarding" 
+          element={
+            <Suspense fallback={<PageLoader />}>
+              <BusinessOnboardingPage />
+            </Suspense>
+          } 
+        />
 
         {/* Protected Routes with MainLayout */}
         <Route 
@@ -152,6 +177,24 @@ function App() {
           />
           
           {/* User Routes */}
+          <Route 
+            path="explorar" 
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <ExplorePage />
+              </Suspense>
+            } 
+          />
+          
+          <Route 
+            path="perfil" 
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <ProfilePage />
+              </Suspense>
+            } 
+          />
+          
           <Route 
             path="perfil/pedidos" 
             element={
@@ -204,6 +247,16 @@ function App() {
             element={
               <Suspense fallback={<PageLoader />}>
                 <QRScanner />
+              </Suspense>
+            } 
+          />
+          
+          {/* Dashboard Pro para negocios */}
+          <Route 
+            path="negocio/dashboard-pro" 
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <BusinessDashboardPro />
               </Suspense>
             } 
           />

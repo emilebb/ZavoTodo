@@ -3,16 +3,25 @@
  * ZAVO - Auth Store (Zustand)
  * ============================================
  * 
- * Sistema robusto de autenticación con JWT
+ * Sistema robusto de autenticación con:
+ * - Firebase Auth (producción)
+ * - Mock local (desarrollo)
  * - Token management
  * - Auto-verificación
  * - Protección de rutas
- * - Logout completo
  */
 
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
-import { mockAuthServer } from '../services/mockAuthServer'
+import { 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  updateProfile
+} from 'firebase/auth'
+import { doc, setDoc, getDoc } from 'firebase/firestore'
+import { auth, db, isFirebaseConfigured } from '../lib/firebase'
 
 // ============================================
 // TIPOS
@@ -20,10 +29,19 @@ import { mockAuthServer } from '../services/mockAuthServer'
 
 interface User {
   id: string
-  name: string
+  name?: string
+  nombre?: string  // Para compatibilidad
   email: string
-  role: 'usuario' | 'negocio'
-  created_at: string
+  phone?: string
+  role?: 'usuario' | 'negocio'
+  rol?: string     // Para compatibilidad
+  created_at?: string
+  verified?: boolean
+  active?: boolean
+  // Campos adicionales para negocios
+  businessName?: string
+  address?: string
+  category?: string
 }
 
 interface AuthState {
@@ -35,9 +53,9 @@ interface AuthState {
   initialized: boolean
   
   // Métodos
-  login: (email: string, password: string) => Promise<void>
-  register: (email: string, password: string, name: string, role: 'usuario' | 'negocio') => Promise<void>
-  logout: () => void
+  login: (email: string, password: string) => Promise<any>
+  register: (email: string, password: string, name: string, role: 'usuario' | 'negocio') => Promise<any>
+  logout: () => Promise<void>
   verifyToken: () => Promise<boolean>
   checkSession: () => Promise<void>
   
@@ -178,41 +196,122 @@ export const useAuthStore = create<AuthState>()(
       // ============================================
 
       login: async (email: string, password: string) => {
+        console.log('🔗 Login iniciado para:', email)
+        console.log('� Firebase configurado:', isFirebaseConfigured())
+        
+        set({ loading: true })
+
         try {
-          set({ loading: true })
-
-          // Usar mock server en desarrollo
-          console.log('🔗 Login URL:', API_BASE_URL + '/auth/login')
-          console.log('📤 LOGIN DATA:', { email, password: '***' })
-          
-          const response = import.meta.env.DEV
-            ? await mockAuthServer.login(email, password)
-            : await apiCall('/auth/login', {
-                method: 'POST',
-                body: JSON.stringify({ email, password }),
-              })
-
-          const { user, token } = response
-
-          // Validar y limpiar datos del usuario
-          const cleanUser = {
-            ...user,
-            name: user.name || 'Usuario',
-            email: user.email || '',
-            created_at: user.created_at || new Date().toISOString(),
-            role: user.role || 'usuario'
+          // ============================================
+          // MODO DESARROLLO: Mock local
+          // ============================================
+          if (import.meta.env.MODE === 'development' && !isFirebaseConfigured()) {
+            console.log('🧪 Usando autenticación MOCK (desarrollo)')
+            
+            // Simular delay de red
+            await new Promise(resolve => setTimeout(resolve, 500))
+            
+            // Credenciales mock
+            const mockUsers = [
+              { email: 'usuario@demo.com', password: '123456', name: 'Usuario Demo', role: 'usuario' },
+              { email: 'negocio@demo.com', password: '123456', name: 'Negocio Demo', role: 'negocio' },
+              { email: 'test@zavo.com', password: 'password', name: 'Test User', role: 'usuario' }
+            ]
+            
+            const user = mockUsers.find(u => u.email === email && u.password === password)
+            
+            if (user) {
+              const mockResponse = {
+                token: 'mock_jwt_token_' + Date.now(),
+                user: {
+                  id: 'user_' + Math.random().toString(36).substr(2, 9),
+                  email: user.email,
+                  name: user.name,
+                  nombre: user.name,
+                  role: user.role as 'usuario' | 'negocio',
+                  rol: user.role,
+                  verified: true,
+                  active: true,
+                  created_at: new Date().toISOString()
+                }
+              }
+              
+              setStoredToken(mockResponse.token)
+              set({ user: mockResponse.user, loading: false, isAuthenticated: true })
+              
+              console.log('✅ Login exitoso (MOCK):', mockResponse.user.name)
+              return mockResponse
+            } else {
+              throw new Error('Credenciales inválidas')
+            }
           }
-
-          // Guardar token y usuario
-          get().setToken(token)
-          get().setUser(cleanUser)
-
-          console.log('✅ Login exitoso:', cleanUser.name)
+          
+          // ============================================
+          // MODO PRODUCCIÓN: Firebase Auth real
+          // ============================================
+          console.log('🔥 Usando Firebase Auth (producción)')
+          
+          // Login con Firebase
+          const userCredential = await signInWithEmailAndPassword(auth, email, password)
+          const firebaseUser = userCredential.user
+          
+          // Obtener token
+          const token = await firebaseUser.getIdToken()
+          setStoredToken(token)
+          
+          // Obtener datos adicionales de Firestore
+          let userData: any = {
+            id: firebaseUser.uid,
+            email: firebaseUser.email || email,
+            name: firebaseUser.displayName || 'Usuario',
+            nombre: firebaseUser.displayName || 'Usuario',
+            role: 'usuario',
+            rol: 'usuario',
+            verified: firebaseUser.emailVerified,
+            active: true,
+            created_at: firebaseUser.metadata.creationTime || new Date().toISOString()
+          }
+          
+          // Intentar obtener datos extendidos de Firestore
+          try {
+            const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid))
+            if (userDoc.exists()) {
+              const firestoreData = userDoc.data()
+              userData = {
+                ...userData,
+                ...firestoreData,
+                id: firebaseUser.uid,
+                email: firebaseUser.email || email
+              }
+            }
+          } catch (firestoreError) {
+            console.warn('⚠️ No se pudo obtener datos de Firestore:', firestoreError)
+          }
+          
+          set({ user: userData, loading: false, isAuthenticated: true })
+          
+          console.log('✅ Login exitoso (Firebase):', userData.name || userData.nombre)
+          return { token, user: userData }
           
         } catch (error: any) {
           console.error('❌ Login error:', error.message)
+          
+          // Traducir errores de Firebase
+          let errorMessage = 'Error al iniciar sesión'
+          if (error.code === 'auth/user-not-found') {
+            errorMessage = 'Usuario no encontrado'
+          } else if (error.code === 'auth/wrong-password') {
+            errorMessage = 'Contraseña incorrecta'
+          } else if (error.code === 'auth/invalid-email') {
+            errorMessage = 'Email inválido'
+          } else if (error.code === 'auth/too-many-requests') {
+            errorMessage = 'Demasiados intentos. Intenta más tarde'
+          } else if (error.message) {
+            errorMessage = error.message
+          }
+          
           get().clearAuth()
-          throw new Error(error.message || 'Error al iniciar sesión')
+          throw new Error(errorMessage)
         } finally {
           set({ loading: false })
         }
@@ -223,38 +322,99 @@ export const useAuthStore = create<AuthState>()(
       // ============================================
 
       register: async (email: string, password: string, name: string, role: 'usuario' | 'negocio') => {
+        console.log('📝 Registro iniciado para:', email)
+        console.log('🔧 Firebase configurado:', isFirebaseConfigured())
+        
         try {
           set({ loading: true })
 
-          // Usar mock server en desarrollo
-          const response = import.meta.env.DEV
-            ? await mockAuthServer.register(email, password, name, role)
-            : await apiCall('/auth/register', {
-                method: 'POST',
-                body: JSON.stringify({ email, password, name, role }),
-              })
-
-          const { user, token } = response
-
-          // Validar y limpiar datos del usuario
-          const cleanUser = {
-            ...user,
-            name: user.name || 'Usuario',
-            email: user.email || '',
-            created_at: user.created_at || new Date().toISOString(),
-            role: user.role || 'usuario'
+          // ============================================
+          // MODO DESARROLLO: Mock local
+          // ============================================
+          if (import.meta.env.MODE === 'development' && !isFirebaseConfigured()) {
+            console.log('🧪 Usando registro MOCK (desarrollo)')
+            
+            await new Promise(resolve => setTimeout(resolve, 500))
+            
+            const mockUser = {
+              id: 'user_' + Math.random().toString(36).substr(2, 9),
+              email,
+              name,
+              nombre: name,
+              role,
+              rol: role,
+              verified: false,
+              active: true,
+              created_at: new Date().toISOString()
+            }
+            
+            const mockToken = 'mock_jwt_token_' + Date.now()
+            setStoredToken(mockToken)
+            set({ user: mockUser, loading: false, isAuthenticated: true })
+            
+            console.log('✅ Registro exitoso (MOCK):', name)
+            return { token: mockToken, user: mockUser }
           }
 
-          // Guardar token y usuario
-          get().setToken(token)
-          get().setUser(cleanUser)
-
-          console.log('✅ Registro exitoso:', cleanUser.name)
+          // ============================================
+          // MODO PRODUCCIÓN: Firebase Auth real
+          // ============================================
+          console.log('🔥 Usando Firebase Auth (producción)')
+          
+          // Crear usuario en Firebase Auth
+          const userCredential = await createUserWithEmailAndPassword(auth, email, password)
+          const firebaseUser = userCredential.user
+          
+          // Actualizar perfil con nombre
+          await updateProfile(firebaseUser, { displayName: name })
+          
+          // Obtener token
+          const token = await firebaseUser.getIdToken()
+          setStoredToken(token)
+          
+          // Crear documento en Firestore
+          const userData = {
+            id: firebaseUser.uid,
+            email: firebaseUser.email || email,
+            name,
+            nombre: name,
+            role,
+            rol: role,
+            verified: false,
+            active: true,
+            created_at: new Date().toISOString()
+          }
+          
+          // Guardar en Firestore
+          try {
+            await setDoc(doc(db, 'users', firebaseUser.uid), userData)
+            console.log('📄 Usuario guardado en Firestore')
+          } catch (firestoreError) {
+            console.warn('⚠️ Error guardando en Firestore:', firestoreError)
+          }
+          
+          set({ user: userData, loading: false, isAuthenticated: true })
+          
+          console.log('✅ Registro exitoso (Firebase):', name)
+          return { token, user: userData }
           
         } catch (error: any) {
           console.error('❌ Register error:', error.message)
+          
+          // Traducir errores de Firebase
+          let errorMessage = 'Error al crear la cuenta'
+          if (error.code === 'auth/email-already-in-use') {
+            errorMessage = 'Este email ya está registrado'
+          } else if (error.code === 'auth/weak-password') {
+            errorMessage = 'La contraseña es muy débil (mínimo 6 caracteres)'
+          } else if (error.code === 'auth/invalid-email') {
+            errorMessage = 'Email inválido'
+          } else if (error.message) {
+            errorMessage = error.message
+          }
+          
           get().clearAuth()
-          throw new Error(error.message || 'Error al crear la cuenta')
+          throw new Error(errorMessage)
         } finally {
           set({ loading: false })
         }
@@ -266,6 +426,7 @@ export const useAuthStore = create<AuthState>()(
 
       verifyToken: async (): Promise<boolean> => {
         const token = get().token
+        const currentUser = get().user
         
         if (!token) {
           get().clearAuth()
@@ -273,24 +434,36 @@ export const useAuthStore = create<AuthState>()(
         }
 
         try {
-          // Usar mock server en desarrollo
-          const response = import.meta.env.DEV
-            ? await mockAuthServer.verify(token)
-            : await apiCall('/auth/verify')
-            
-          const { user } = response
-
-          // Validar y limpiar datos del usuario
-          const cleanUser = {
-            ...user,
-            name: user.name || 'Usuario',
-            email: user.email || '',
-            created_at: user.created_at || new Date().toISOString(),
-            role: user.role || 'usuario'
+          // ============================================
+          // MOCK LOCAL: Token mock válido
+          // ============================================
+          if (token.startsWith('mock_jwt_token_') && currentUser) {
+            console.log('✅ Token válido (MOCK)')
+            return true
           }
-
-          get().setUser(cleanUser)
-          return true
+          
+          // ============================================
+          // FIREBASE: Verificar con Firebase Auth
+          // ============================================
+          if (isFirebaseConfigured() && auth.currentUser) {
+            // Verificar que el token no haya expirado
+            try {
+              await auth.currentUser.getIdToken(true) // Force refresh
+              console.log('✅ Token válido (Firebase)')
+              return true
+            } catch (firebaseError) {
+              console.warn('⚠️ Token de Firebase expirado')
+              throw new Error('Token expirado')
+            }
+          }
+          
+          // Si llegamos aquí sin usuario de Firebase, verificar si hay usuario en estado
+          if (currentUser && token) {
+            console.log('✅ Token válido (estado local)')
+            return true
+          }
+          
+          throw new Error('Token inválido')
           
         } catch (error: any) {
           console.error('❌ Token verification failed:', error.message)
@@ -328,15 +501,21 @@ export const useAuthStore = create<AuthState>()(
       // LOGOUT
       // ============================================
 
-      logout: () => {
+      logout: async () => {
         console.log('🚪 Cerrando sesión...')
         
-        // Limpiar todo inmediatamente
+        // Limpiar estado local inmediatamente
         get().clearAuth()
         
-        // Opcional: notificar al backend (no bloqueante)
-        apiCall('/auth/logout', { method: 'POST' })
-          .catch(error => console.warn('Logout API call failed:', error))
+        // Cerrar sesión en Firebase si está configurado
+        if (isFirebaseConfigured()) {
+          try {
+            await signOut(auth)
+            console.log('✅ Sesión cerrada en Firebase')
+          } catch (error) {
+            console.warn('⚠️ Error cerrando sesión en Firebase:', error)
+          }
+        }
         
         console.log('✅ Sesión cerrada completamente')
       },

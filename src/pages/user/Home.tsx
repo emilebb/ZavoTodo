@@ -8,6 +8,7 @@ import Button from '../../components/ui/Button'
 import LoadingSpinner from '../../components/ui/LoadingSpinner'
 import Badge from '../../components/ui/Badge'
 import SearchFilters from '../../components/filters/SearchFilters'
+import HeroSection from '../../components/home/HeroSection'
 import { Pack } from '../../types'
 
 const Home = () => {
@@ -128,35 +129,11 @@ const Home = () => {
   )
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      {/* Hero Section */}
-      <div className="text-center mb-8">
-        <div className="flex items-center justify-center space-x-2 mb-4">
-          <Leaf className="w-8 h-8 text-primary-600" />
-          <h1 className="text-3xl font-bold text-gray-900">
-            Rescata comida deliciosa
-          </h1>
-        </div>
-        <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-          Encuentra packs sorpresa con hasta 70% de descuento y ayuda a reducir el desperdicio alimentario
-        </p>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-8">
-        <Card className="text-center p-4">
-          <div className="text-2xl font-bold text-primary-600 mb-1">2.5K</div>
-          <div className="text-sm text-gray-600">Packs rescatados</div>
-        </Card>
-        <Card className="text-center p-4">
-          <div className="text-2xl font-bold text-green-600 mb-1">85%</div>
-          <div className="text-sm text-gray-600">Ahorro promedio</div>
-        </Card>
-        <Card className="text-center p-4">
-          <div className="text-2xl font-bold text-teal-600 mb-1">150+</div>
-          <div className="text-sm text-gray-600">Negocios aliados</div>
-        </Card>
-      </div>
+    <div>
+      {/* Hero Section con nuevo diseño ZAVO */}
+      <HeroSection />
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
       {/* Search and Filters */}
       <SearchFilters />
@@ -280,6 +257,7 @@ const Home = () => {
           </div>
         </div>
       </Card>
+      </div>
     </div>
   )
 }

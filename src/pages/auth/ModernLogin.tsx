@@ -36,8 +36,16 @@ const ModernLogin = () => {
     }
 
     try {
-      await login(email, password)
-      navigate('/home')
+      const response = await login(email, password)
+      const user = response?.user
+      
+      // Redirigir según el rol del usuario
+      if (user?.role === 'negocio') {
+        // Cuando tengamos la página de negocios lista, redirigir al dashboard
+        navigate('/negocio/dashboard-pro')
+      } else {
+        navigate('/home')
+      }
     } catch (error: any) {
       setErrors({ general: error.message })
     }

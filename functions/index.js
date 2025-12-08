@@ -27,6 +27,7 @@ app.use(express.json());
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const ordersRoutes = require('./routes/orders');
+const paymentsRoutes = require('./routes/payments');
 
 // ============================================
 // CONFIGURAR RUTAS
@@ -35,11 +36,12 @@ const ordersRoutes = require('./routes/orders');
 app.use('/auth', authRoutes);
 app.use('/users', userRoutes);
 app.use('/orders', ordersRoutes);
+app.use('/payments', paymentsRoutes);
 
 // Ruta de health check
 app.get('/', (req, res) => {
   res.json({
-    message: 'ZAVO API is running! 🚀',
+    message: 'ZAVO API is running! ',
     version: '1.0.0',
     timestamp: new Date().toISOString(),
     endpoints: {

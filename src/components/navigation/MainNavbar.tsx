@@ -7,11 +7,9 @@ import {
   Map, 
   ShoppingBag, 
   User, 
-  BarChart3, 
-  Package, 
-  Plus,
-  LogOut,
-  Leaf
+  Leaf,
+  Compass,
+  LogOut
 } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
 import Button from '../ui/Button'
@@ -33,19 +31,12 @@ const MainNavbar = () => {
 
   const isActive = (path: string) => location.pathname === path
 
-  const userMenuItems = [
+  const menuItems = [
     { path: '/', label: 'Inicio', icon: Home },
+    { path: '/explorar', label: 'Explorar', icon: Compass },
     { path: '/mapa', label: 'Mapa', icon: Map },
-    { path: '/perfil/pedidos', label: 'Mis Pedidos', icon: ShoppingBag },
+    { path: '/perfil/pedidos', label: 'Pedidos', icon: ShoppingBag },
   ]
-
-  const businessMenuItems = [
-    { path: '/negocio/dashboard', label: 'Dashboard', icon: BarChart3 },
-    { path: '/negocio/packs', label: 'Mis Packs', icon: Package },
-    { path: '/negocio/pedidos', label: 'Pedidos', icon: ShoppingBag },
-  ]
-
-  const menuItems = user?.role === 'negocio' ? businessMenuItems : userMenuItems
 
   return (
     <>
@@ -96,39 +87,22 @@ const MainNavbar = () => {
 
             {/* Right Section */}
             <div className="flex items-center space-x-3">
-              
-              {/* Create Pack Button (Business only) */}
-              {user?.role === 'negocio' && (
-                <Link to="/negocio/packs/nuevo" className="hidden sm:block">
-                  <Button size="sm" className="bg-gradient-to-r from-primary-600 to-teal-600 hover:from-primary-700 hover:to-teal-700">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Crear Pack
-                  </Button>
-                </Link>
-              )}
-
               {/* User Menu */}
-              <div className="hidden md:flex items-center space-x-3">
-                <div className="flex items-center space-x-3 px-3 py-2 bg-gray-50 rounded-lg">
-                  <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-teal-500 rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm font-medium">
-                      {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+              <div className="hidden md:flex items-center">
+                <Link 
+                  to="/perfil"
+                  className="flex items-center space-x-3 px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-xl transition-all duration-200 cursor-pointer group"
+                >
+                  <div className="w-9 h-9 bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-600 rounded-full flex items-center justify-center shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all duration-200">
+                    <span className="text-white text-sm font-bold">
+                      {(user?.name || user?.nombre)?.charAt(0)?.toUpperCase() || 'U'}
                     </span>
                   </div>
                   <div className="text-left">
-                    <p className="text-sm font-medium text-gray-900">{user?.name}</p>
-                    <p className="text-xs text-gray-500 capitalize">{user?.role}</p>
+                    <p className="text-sm font-semibold text-gray-900">{user?.name || user?.nombre}</p>
+                    <p className="text-xs text-gray-500">Usuario</p>
                   </div>
-                </div>
-                
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleLogout}
-                  className="text-gray-500 hover:text-red-600"
-                >
-                  <LogOut className="w-4 h-4" />
-                </Button>
+                </Link>
               </div>
 
               {/* Mobile Menu Button */}
@@ -153,18 +127,27 @@ const MainNavbar = () => {
           <div className="md:hidden bg-white/95 backdrop-blur-md border-t border-gray-200">
             <div className="px-4 py-3 space-y-1">
               
-              {/* User Info */}
-              <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg mb-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-teal-500 rounded-full flex items-center justify-center">
-                  <span className="text-white font-medium">
-                    {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+              {/* User Info - Clickeable */}
+              <Link
+                to="/perfil"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center space-x-3 p-3 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-emerald-50 hover:to-teal-50 rounded-xl mb-3 transition-all duration-200"
+              >
+                <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-600 rounded-full flex items-center justify-center shadow-lg">
+                  <span className="text-white text-lg font-bold">
+                    {(user?.name || user?.nombre)?.charAt(0)?.toUpperCase() || 'U'}
                   </span>
                 </div>
-                <div>
-                  <p className="font-medium text-gray-900">{user?.name}</p>
-                  <p className="text-sm text-gray-500 capitalize">{user?.role}</p>
+                <div className="flex-1">
+                  <p className="font-semibold text-gray-900">{user?.name || user?.nombre}</p>
+                  <p className="text-sm text-gray-500">Usuario</p>
                 </div>
-              </div>
+                <div className="text-gray-400">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </Link>
 
               {/* Navigation Items */}
               {menuItems.map((item) => {
@@ -186,22 +169,10 @@ const MainNavbar = () => {
                 )
               })}
 
-              {/* Create Pack Button (Business Mobile) */}
-              {user?.role === 'negocio' && (
-                <Link
-                  to="/negocio/packs/nuevo"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center space-x-3 px-3 py-3 bg-gradient-to-r from-primary-600 to-teal-600 text-white rounded-lg font-medium mt-2"
-                >
-                  <Plus className="w-5 h-5" />
-                  <span>Crear Pack</span>
-                </Link>
-              )}
-
               {/* Profile & Logout */}
               <div className="border-t border-gray-200 pt-3 mt-3">
                 <Link
-                  to={user?.role === 'negocio' ? '/negocio/perfil' : '/perfil'}
+                  to="/perfil"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="flex items-center space-x-3 px-3 py-3 text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg"
                 >

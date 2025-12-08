@@ -1,5 +1,6 @@
 /* Import Design Tokens - Must be first */
 @import './styles/design-tokens.css';
+@import './styles/design-system.css';
 
 @tailwind base;
 @tailwind components;
